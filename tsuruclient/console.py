@@ -13,8 +13,8 @@ try:
 except:
     readline = None
 
-from tsuruclient import apps   
-from tsuruclient import auth
+import apps   
+import auth
 
 class Console(cmd.Cmd):
 
@@ -104,8 +104,8 @@ class ITsuru(Console):
         self._get_target()
         self.intro  = "Welcome to tsuru console! Current target is: %s ." % self.target ## defaults to None
 
-        self.apps = apps.AppManager(target)
-        self.auth = auth.AuthManager(target)
+        #self.apps = apps.AppManager(self.target)
+        #self.auth = auth.AuthManager(self.target)
 
     def _get_target(self):
         fn = os.path.join(os.getenv('HOME'), '.tsuru_target')
@@ -134,9 +134,8 @@ class ITsuru(Console):
     def do_useradd(self, email):
         # check email is valid
         # create a user with email
-        self.auth.create(email)
-
-
+	am = auth.AuthManager(self.target)
+        am.create(email)
 
 
 if __name__ == '__main__':

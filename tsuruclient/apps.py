@@ -49,14 +49,14 @@ class AppManager(object):
         )
         return response.json
 
-    def unit-add(self, appname, numunits=1):
+    def unitadd(self, appname, numunits=1):
         """
         Add a new unit to an app.
         """
         response = requests.put("{0}/apps/{1}/units".format(self.target, appname), data=str(numunits))
         return response.json
 
-    def unit-remove(self, appname, numunits=1):
+    def unitremove(self, appname, numunits=1):
         """
         Remove units from an app.
         """
