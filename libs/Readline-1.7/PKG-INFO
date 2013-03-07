@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: Readline
+Version: 1.7
+Summary: Alternative Python Readline for Windows
+Home-page: http://newcenturycomputers.net/projects/readline.html
+Author: Chris Gonnerman
+Author-email: chris.gonnerman@newcenturycomputers.net
+License: UNKNOWN
+Description: Alternative Python Readline for Windows
+Keywords: input history editing readline commandline
+Platform: Win32
