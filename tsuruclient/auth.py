@@ -7,12 +7,13 @@ import requests
 import getpass
 
 from configs import TOKEN_FN
+from utils import login_required
 
 
 class AuthManager(object):
 
     def __init__(self, target):
-        self.target = target
+        self.target = target    
 
     def createUser(self, email):        
         password = getpass.getpass("Please input your password: ")
@@ -31,9 +32,9 @@ class AuthManager(object):
         if response.ok:
             print "User '%s' successfully created!" % email
         else:
-            print "User '%s' failed to created!" % email
-        return response.json()
+            print "User '%s' failed to created! Reason: %s" % (email, response.content)
 
+    @login_required
     def removeUser(self, email):
         """removes your user from tsuru server.
         """
@@ -47,7 +48,7 @@ class AuthManager(object):
         if response.ok:
             print "Remove '%s' successfully!" % email
         else:
-            print "Remove '%s' failed! Reason: %s" % (email, response.content)
+            print "Remove '%s' failed!\nReason: %s" % (email, response.content)
 
     def login(self, email):
         '''Login to server.
@@ -74,11 +75,10 @@ class AuthManager(object):
             with open(fn, 'w') as f:
                 f.write(c)
             print("Successfully logged in!")
-            return 
         else:
             print("Failed to logged in!\nReason: %s" % response.content)
-            return 
 
+    @login_required
     def logout(self):
         '''clear local authentication credentials.'''
         fn = TOKEN_FN
@@ -87,8 +87,8 @@ class AuthManager(object):
             print("Successfully logged out!")
         else:
             print("You're not logged in!")
-        
-
+     
+    @login_required   
     def createTeam(self, name):
         '''creates a new team.
         '''
@@ -96,31 +96,23 @@ class AuthManager(object):
         data = {
             "name": name
         }
-        headers = None
-        if os.path.exists(TOKEN_FN):
-            token = open(TOKEN_FN).read().strip()
-            headers = {'Authorization': token}
+        #tk = readToken(TOKEN_FN)
+        #auhd = {'Authorization': tk}
         response = requests.post(
             "{0}/teams".format(self.target),
             data=json.dumps(data),
-            headers = headers
+            headers = self.auhd
         )
         if response.ok:
             print "Team '%s' successfully created!" % name
         else:
-            print "Team '%s' failed to created! Reason: %s" % (name, response.content)
+            print "Team '%s' failed to create!\nReason: %s" % (name, response.content)
 
+    @login_required
     def removeTeam(self, name):
         '''removes a team from tsuru server.
         '''
-        # http DELETE http://127.0.0.1:8080/teams/TEST Authorization:TOKEN
-        headers = None
-        if os.path.exists(TOKEN_FN):
-            token = open(TOKEN_FN).read().strip()
-            headers = {'Authorization': token}
-        else:
-            print("Please login first!")
-            return
+        # http DELETE http://127.0.0.1:8080/teams/TEST Authorization:TOKEN           
         q = "Are you sure you want to remove team ? (y/n) "
         a = raw_input(q).strip()
         if a == "n" or a == "N":
@@ -129,17 +121,78 @@ class AuthManager(object):
         if a == "y" or a == "Y":            
             response = requests.delete(
                 "{0}/teams/{1}".format(self.target, name),
-                headers = headers
+                headers = self.auhd
             )
             if response.ok:
                 print "Remove team '%s' successfully!" % name
             else:
-                print "Remove team '%s' failed! Reason: %s" % (name, response.content)
+                print "Remove team '%s' failed!\nReason: %s" % (name, response.content)
             return 
 
+    @login_required
     def addTeamUser(self, tname, uname):
-        '''adds a user to a team.
-        Usage: addteamuser <teamname> <useremail>
+        '''adds a user to a team.\nUsage: addteamuser <teamname> <useremail>
         '''
-        pass
+        response = requests.put(
+            "{0}/teams/{1}/{2}".format(self.target, tname, uname),
+            headers = self.auhd
+        )
+        if response.ok:
+            print("Successfully add user %s to team %s." % (uname, tname))
+        else:
+            print("Failed to add user %s to team %s.\nReason: %s" % (uname, tname, response.content))
+
+    @login_required
+    def removeTeamUser(self, tname, uname):
+        '''removes a user from a team.
+        '''
+        response = requests.put(
+            "{0}/teams/{1}/{2}".format(self.target, tname, uname),
+            headers = self.auhd
+        )
+        if response.ok:
+            print("Successfully remove user %s from team %s." % (uname, tname))
+        else:
+            print("Failed to remove user %s from team %s.\nReason: %s" % (uname, tname, response.content))
+
+    @login_required
+    def listTeam(self):
+        '''List all teams that you are member.
+        '''
+        # http GET http://192.168.33.10:8080/teams Authorization:c6af13c174b1
+        response = requests.get(
+            "{0}/teams".format(self.target),
+            headers = self.auhd
+        )
+        if response.ok:
+            # list all of teams
+            ts = response.json()
+            print(" name")
+            print("======")
+            for x in ts:
+                print(' ' + x['name'])
+        else:
+            print("Failed to list all of teams.\nReason: %s" % response.content) 
+
+    @login_required
+    def changePassword(self):
+        cp = getpass.getpass("Current password: ")
+        np = getpass.getpass("New password: ")
+        ncp = getpass.getpass("Confirm: ")
+        if np != ncp: 
+            print("New password and password confirmation didn't match.")
+            return 
+        data = {
+            "old": cp,
+            "new": np
+        }
+        response = requests.put(
+            "{0}/users/password".format(self.target), 
+            data=json.dumps(data),
+            headers = self.auhd
+        )
+        if response.ok:
+            print("Successfully changed password.")
+        else:
+            print("Failed to change password.\nReason: %s" % (response.content))
 

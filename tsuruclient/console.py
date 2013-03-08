@@ -20,6 +20,7 @@ import apps
 import auth
 
 from configs import TARGET_FN
+from utils import minargs_check, minargs_required
 
 class Console(cmd.Cmd):
 
@@ -120,7 +121,7 @@ class ITsuru(Console):
             with open(fn) as f:
                 self.target = f.read().strip()
         else:
-            self.target = DefaultTarget
+            self.target = DefaultTarget    
 
     def do_target(self, arg):
         fn = TARGET_FN
@@ -138,7 +139,7 @@ class ITsuru(Console):
     def help_target(self):
         print "get or set target.\nUsage: target [url]"
 
-    def do_useradd(self, email):
+    def do_user_add(self, email):
         '''Creates a user.\nUsage: useradd <email>'''
         # check email is valid
         # create a user with email
@@ -148,11 +149,11 @@ class ITsuru(Console):
         am = auth.AuthManager(self.target)
         am.createUser(email)
 
-    def do_userremove(self, email):
+    def do_user_remove(self, email):
         am = auth.AuthManager(self.target)
         am.removeUser(email)
 
-    def help_userremove(self):
+    def help_user_remove(self):
         print '''removes your user from tsuru server.'''
 
     def do_login(self, email):
@@ -166,20 +167,54 @@ class ITsuru(Console):
         return 
 
     def do_logout(self, arg):
-        '''clear local authentication credentials.
+        '''clear local authentication credentials.\nUsage: logout
         '''
         am = auth.AuthManager(self.target)
         am.logout()
 
-    def do_teamcreate(self, name):
-        '''Creates a new team.\nUsage: teamcreate <name>'''
+    def do_team_create(self, name):
+        '''Creates a new team.\nUsage: team_create <name>'''
         am = auth.AuthManager(self.target)
         am.createTeam(name)        
 
-    def do_teamremove(self, name):
-        '''removes a team from tsuru server.\nUsage: teamremove <name>'''
+    def do_team_remove(self, name):
+        '''removes a team from tsuru server.\nUsage: team_remove <name>'''
         am = auth.AuthManager(self.target)
         am.removeTeam(name)
+
+    def do_team_user_add(self, args):
+        '''adds a user to a team.\nUsage: team_user_add <teamname> <useremail>
+        '''
+        x = args.split()
+        if len(x) < 2:
+            print("Invalid number of arguments.")
+            return 
+        tname, uname = x[0], x[1]
+        am = auth.AuthManager(self.target)
+        am.addTeamUser(tname, uname)
+
+    def do_team_list(self, args):
+        '''List all teams that you are member.\nUsage: team_ls
+        '''
+        am = auth.AuthManager(self.target)
+        am.listTeam()
+
+    def do_app_list(self, args):
+        '''
+        '''
+        apm = apps.AppManager(self.target)
+        apm.list()
+
+    @minargs_required('args', 2, str)
+    def do_app_create(self, args):
+        '''Create an app.\nUsage: app_create <name> <framwork> 
+        '''
+        #x = minargs_check(args, 2)
+        if self.argx is not None:
+            x = self.argx 
+            name, framework = x[0], x[1]
+            apm = apps.AppManager(self.target)
+            apm.create(name, framework)
 
 if __name__ == '__main__':
     console = ITsuru()
