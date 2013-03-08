@@ -205,13 +205,14 @@ class ITsuru(Console):
         apm = apps.AppManager(self.target)
         apm.list()
 
-    @minargs_required('args', 2, str)
+    @minargs_required(2)
     def do_app_create(self, args):
         '''Create an app.\nUsage: app_create <name> <framwork> 
         '''
         #x = minargs_check(args, 2)
-        if self.argx is not None:
-            x = self.argx 
+        #if self.argx is not None:
+        x = self.argx 
+        if x:
             name, framework = x[0], x[1]
             apm = apps.AppManager(self.target)
             apm.create(name, framework)

@@ -30,62 +30,27 @@ def login_required(func):
 def minargs_check(args, minargs):
     x = args.split()
     if len(x) < minargs:
-        raise "Invalid number of arguments."
+        print("Invalid number of arguments.")
+        return
     return x    
 
 
-def minargs_required(arg_name, minnum, *allowed_types):
+def minargs_required(minnum):
     '''
     This decorator just works for cmd derived classes.
     used to check argument string .
-    # http://code.activestate.com/recipes/454322-type-checking-decorator/
-    @require("x", int, float)
-    @require("y", float)
-    def foo(x, y):
-        return x+y
-
-    print foo(1, 2.5)      # Prints 3.5.
-    print foo(2.0, 2.5)    # Prints 4.5.
-    print foo("asdf", 2.5) # Raises TypeError exception.
-    print foo(1, 2)        # Raises TypeError exception.
-    '''
+    '''    
     def make_wrapper(f):
-        if hasattr(f, "wrapped_args"):
-            wrapped_args = getattr(f, "wrapped_args")
-        else:
-            code = f.func_code
-            wrapped_args = list(code.co_varnames[:code.co_argcount])
-
-        try:
-            arg_index = wrapped_args.index(arg_name)
-        except ValueError:
-            raise NameError, arg_name
-
-        def wrapper(self, *args, **kwargs):
-            self.argx = None
-            if len(args) > arg_index:
-                arg = args[arg_index]
-                if not isinstance(arg, allowed_types):
-                    type_list = " or ".join(str(allowed_type) for allowed_type in allowed_types)
-                    raise TypeError, "Expected '%s' to be %s; was %s." % (arg_name, type_list, type(arg))
+        @wraps(f)
+        def wrapper(self, *args, **kwargs):            
+            x = args[0].split()
+            if len(x) < minnum:
+                print("Invalid number of arguments.")
+                return 
             else:
-                if arg_name in kwargs:
-                    arg = kwargs[arg_name]
-                    if not isinstance(arg, allowed_types):
-                        type_list = " or ".join(str(allowed_type) for allowed_type in allowed_types)
-                        raise TypeError, "Expected '%s' to be %s; was %s." % (arg_name, type_list, type(arg))
-                    #                     
-                    #if isinstance(arg, str):
-                    x = arg.split()
-                    if len(x) < minnum:
-                        raise TypeError, "Expected minmal %d arguments, received %d." % (minnum, len(x))
-                        return 
-                    else:
-                        self.argx = x
+                self.argx = x
+                return f(self, *args, **kwargs)
 
-            return f(self, *args, **kwargs)
-
-        wrapper.wrapped_args = wrapped_args
         return wrapper
 
     return make_wrapper    
