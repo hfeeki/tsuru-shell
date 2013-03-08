@@ -9,8 +9,14 @@ from configs import TOKEN_FN
 
 
 def readToken(fn=TOKEN_FN):
-    token = open(fn).read().strip()
-    return token
+    with open(fn) as f:
+        token = f.read().strip()
+        return token
+
+def readkey(fn=KEY_FN):      
+    with open(fn) as f:
+        c = f.read().strip()
+        return c       
 
 def login_required(func):
     @wraps(func)

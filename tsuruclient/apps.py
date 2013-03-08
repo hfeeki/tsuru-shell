@@ -100,3 +100,8 @@ class AppManager(object):
             print("Failed to remove units from an app.\nReason: %s" % (response.content))
         return response.content
 
+    @login_required
+    def envget(self):
+        '''Retrieve environment variables for an app. If you don't provide the app name, tsuru will try to guess it.\n
+        '''
+
