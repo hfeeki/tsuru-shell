@@ -23,17 +23,7 @@ def login_required(func):
             self.auhd = {'Authorization': self.tk}
             return func(self, *args, **kw)
 
-    #check_login.__doc__ = func.__doc__
-    #check_login.__name__ = func.__name__
     return check_login
-
-def minargs_check(args, minargs):
-    x = args.split()
-    if len(x) < minargs:
-        print("Invalid number of arguments.")
-        return
-    return x    
-
 
 def minargs_required(minnum):
     '''
@@ -42,7 +32,9 @@ def minargs_required(minnum):
     '''    
     def make_wrapper(f):
         @wraps(f)
-        def wrapper(self, *args, **kwargs):            
+        def wrapper(self, *args, **kwargs): 
+            if minnum == 0: 
+                return f(self, *args, **kwargs)
             x = args[0].split()
             if len(x) < minnum:
                 print("Invalid number of arguments.")

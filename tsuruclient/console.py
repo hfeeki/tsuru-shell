@@ -20,7 +20,7 @@ import apps
 import auth
 
 from configs import TARGET_FN
-from utils import minargs_check, minargs_required
+from utils import minargs_required
 
 class Console(cmd.Cmd):
 
@@ -139,22 +139,21 @@ class ITsuru(Console):
     def help_target(self):
         print "get or set target.\nUsage: target [url]"
 
+    @minargs_required(1)
     def do_user_add(self, email):
         '''Creates a user.\nUsage: useradd <email>'''
         # check email is valid
         # create a user with email
         if email is None or len(email)==0:
-            print "Usage: useradd <email>\nemail is required."
+            print "Usage: user_add <email>\nemail is required."
             return 
         am = auth.AuthManager(self.target)
         am.createUser(email)
 
     def do_user_remove(self, email):
+        '''removes your user from tsuru server.'''
         am = auth.AuthManager(self.target)
         am.removeUser(email)
-
-    def help_user_remove(self):
-        print '''removes your user from tsuru server.'''
 
     def do_login(self, email):
         '''Login to server.\nUsage: login <email>
@@ -172,50 +171,90 @@ class ITsuru(Console):
         am = auth.AuthManager(self.target)
         am.logout()
 
+    @minargs_required(1)
     def do_team_create(self, name):
         '''Creates a new team.\nUsage: team_create <name>'''
         am = auth.AuthManager(self.target)
         am.createTeam(name)        
 
+    @minargs_required(1)
     def do_team_remove(self, name):
         '''removes a team from tsuru server.\nUsage: team_remove <name>'''
         am = auth.AuthManager(self.target)
         am.removeTeam(name)
 
+    @minargs_required(2)
     def do_team_user_add(self, args):
         '''adds a user to a team.\nUsage: team_user_add <teamname> <useremail>
         '''
-        x = args.split()
-        if len(x) < 2:
-            print("Invalid number of arguments.")
-            return 
+        x = self.argx
         tname, uname = x[0], x[1]
         am = auth.AuthManager(self.target)
         am.addTeamUser(tname, uname)
 
     def do_team_list(self, args):
-        '''List all teams that you are member.\nUsage: team_ls
+        '''List all teams that you are member.\nUsage: team_list
         '''
         am = auth.AuthManager(self.target)
         am.listTeam()
 
     def do_app_list(self, args):
-        '''
+        '''Get a list of all apps.\nUsage: app_list
         '''
         apm = apps.AppManager(self.target)
         apm.list()
 
     @minargs_required(2)
     def do_app_create(self, args):
-        '''Create an app.\nUsage: app_create <name> <framwork> 
+        '''Create an app.\nUsage: app_create <name> <framework> 
         '''
         #x = minargs_check(args, 2)
         #if self.argx is not None:
         x = self.argx 
-        if x:
-            name, framework = x[0], x[1]
-            apm = apps.AppManager(self.target)
-            apm.create(name, framework)
+        name, framework = x[0], x[1]
+        apm = apps.AppManager(self.target)
+        apm.create(name, framework)
+
+    @minargs_required(1)
+    def do_app_info(self, args):
+        """Show information about your app.
+        """
+        name = self.argx[0]
+        apm = apps.AppManager(self.target)
+        apm.get(name)
+
+    @minargs_required(1)
+    def do_app_remove(self, args):
+        """Remove an app.\nUsage: app_remove <appname>
+        """
+        name = self.argx[0]
+        apm = apps.AppManager(self.target)
+        apm.remove(name)
+
+    @minargs_required(1)
+    def do_app_unit_add(self, args):
+        """Add a new unit to an app.\nUsage: app_unit_add <appname> [numunits=1]
+        """
+        aname = self.argx[0]
+        if len(self.argx) > 1:
+            numunits = self.argx[1]
+        else:
+            numunits = 1
+        apm = apps.AppManager(self.target)
+        apm.unitadd(aname, numunits)
+
+    @minargs_required(1)
+    def do_app_unit_remove(self, args):
+        """Remove units from an app.\nUsage: app_unit_remove <appname> [numunits=1]
+        """
+        aname = self.argx[0]
+        if len(self.argx) > 1:
+            numunits = self.argx[1]
+        else:
+            numunits = 1
+        apm = apps.AppManager(self.target)
+        apm.unitremove(aname, numunits)
+
 
 if __name__ == '__main__':
     console = ITsuru()
