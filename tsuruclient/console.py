@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 ## {{{ http://code.activestate.com/recipes/280500/ (r1)
 ## console.py
 ## Author:   James Thiele
@@ -15,6 +18,8 @@ except:
 
 import apps   
 import auth
+
+from configs import TARGET_FN
 
 class Console(cmd.Cmd):
 
@@ -95,7 +100,9 @@ class Console(cmd.Cmd):
         except Exception, e:
             print e.__class__, ":", e
 
+
 DefaultTarget = "http://tsuru.plataformas.glb.com:8080"
+
 
 class ITsuru(Console):
 
@@ -108,7 +115,7 @@ class ITsuru(Console):
         #self.auth = auth.AuthManager(self.target)
 
     def _get_target(self):
-        fn = os.path.join(os.getenv('HOME'), '.tsuru_target')
+        fn = TARGET_FN
         if os.path.exists(fn):            
             with open(fn) as f:
                 self.target = f.read().strip()
@@ -116,7 +123,7 @@ class ITsuru(Console):
             self.target = DefaultTarget
 
     def do_target(self, arg):
-        fn = os.path.join(os.getenv('HOME'), '.tsuru_target')
+        fn = TARGET_FN
         if len(arg) < 1:
             self._get_target()            
         else:
@@ -129,16 +136,52 @@ class ITsuru(Console):
         print "Current target is: %s ." % self.target        
 
     def help_target(self):
-        print "get or set target."
+        print "get or set target.\nUsage: target [url]"
 
     def do_useradd(self, email):
+        '''Creates a user.\nUsage: useradd <email>'''
         # check email is valid
         # create a user with email
-	am = auth.AuthManager(self.target)
-        am.create(email)
+        if email is None or len(email)==0:
+            print "Usage: useradd <email>\nemail is required."
+            return 
+        am = auth.AuthManager(self.target)
+        am.createUser(email)
 
+    def do_userremove(self, email):
+        am = auth.AuthManager(self.target)
+        am.removeUser(email)
+
+    def help_userremove(self):
+        print '''removes your user from tsuru server.'''
+
+    def do_login(self, email):
+        '''Login to server.\nUsage: login <email>
+        ''' 
+        if email is None or len(email)==0:
+            print "Usage: login <email>\nemail is required."
+            return
+        am = auth.AuthManager(self.target)
+        am.login(email)
+        return 
+
+    def do_logout(self, arg):
+        '''clear local authentication credentials.
+        '''
+        am = auth.AuthManager(self.target)
+        am.logout()
+
+    def do_teamcreate(self, name):
+        '''Creates a new team.\nUsage: teamcreate <name>'''
+        am = auth.AuthManager(self.target)
+        am.createTeam(name)        
+
+    def do_teamremove(self, name):
+        '''removes a team from tsuru server.\nUsage: teamremove <name>'''
+        am = auth.AuthManager(self.target)
+        am.removeTeam(name)
 
 if __name__ == '__main__':
-        console = ITsuru()
-        console . cmdloop() 
+    console = ITsuru()
+    console . cmdloop() 
 ## end of http://code.activestate.com/recipes/280500/ }}}

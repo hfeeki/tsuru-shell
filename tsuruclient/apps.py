@@ -18,21 +18,21 @@ class AppManager(object):
         Get a list of all apps.
         """
         response = requests.get("{0}/apps".format(self.target))
-        return response.json
+        return response.json()
 
     def get(self, appname):
         """
         show information about your app.
         """
         response = requests.get("{0}/apps/{1}".format(self.target, appname))
-        return response.json
+        return response.json()
 
     def remove(self, appname):
         """
         Remove an app.
         """
         response = requests.delete("{0}/apps/{1}".format(self.target, appname))
-        return response.json
+        return response.json()
 
     def create(self, name, framework, numunits=1):
         """
@@ -47,7 +47,7 @@ class AppManager(object):
             "{0}/apps".format(self.target),
             data=json.dumps(data)
         )
-        return response.json
+        return response.json()
 
     def unitadd(self, appname, numunits=1):
         """
@@ -61,5 +61,5 @@ class AppManager(object):
         Remove units from an app.
         """
         response = requests.delete("{0}/apps/{1}/units".format(self.target, appname), data=str(numunits))
-        return response.json
+        return response.json()
 
