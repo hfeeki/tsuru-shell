@@ -45,8 +45,13 @@ class ITsuru(cmdln.Cmdln):
         else:
             self.target = DefaultTarget    
 
+    @cmdln.alias("t")
     def do_target(self, subcmd, opts, *args):
-        '''Get or set target.\nUsage: target [url]'''
+        '''Get or set target.
+
+        Usage: 
+            target [url]
+        '''
         fn = TARGET_FN
         if len(args) < 1:
             self._get_target()            
@@ -61,22 +66,31 @@ class ITsuru(cmdln.Cmdln):
 
     ################## User commands ####################
 
+    @cmdln.alias("uc")
     @minargs_required(1)
     def do_user_create(self, subcmd, opts, *args):
-        '''Creates a user.\nUsage: user_create <email>'''
+        '''Creates a user.
+
+        Usage: 
+            user_create <email>
+        '''
         # check email is valid
         # create a user with email
         email = args[0]
         am = auth.AuthManager(self.target)
         am.createUser(email)
 
+    @cmdln.alias("ur")
     def do_user_remove(self, subcmd, opts, *args):
-        '''Removes your user from server.'''
+        '''Removes your user from server.
+
+        Usage:
+            user_remove 
+        '''
         am = auth.AuthManager(self.target)
         am.removeUser()
 
     @cmdln.alias("lgi")
-    @cmdln.option("-p", action="store_true", dest="password")
     @minargs_required(1)
     def do_login(self, subcmd, opts, *args):
         '''Login to server.
@@ -103,14 +117,33 @@ class ITsuru(cmdln.Cmdln):
         am = auth.AuthManager(self.target)
         am.logout()
 
+    @cmdln.alias("cp")
     def do_change_password(self, subcmd, opts, *args):
-        '''Change your password.\nUsage: change_password'''
+        '''Change your password.
+
+        Usage: 
+            change_password
+        '''
         am = auth.AuthManager(self.target)
         am.changePassword()
 
+    @cmdln.alias("st", "s")
+    def do_status(self, subcmd, opts, *args):
+        """Display current login state.
+
+        Usage:
+            status 
+        """
+        am = auth.AuthManager(self.target)
+        am.status()
+
+    @cmdln.alias("uka")
     @minargs_required(0)
-    def do_user_add_key(self, subcmd, opts, *args):
-        '''Add your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: user_add_key [path/to/key/file.pub]
+    def do_user_key_add(self, subcmd, opts, *args):
+        '''Add your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).
+
+        Usage: 
+            user_add_key [path/to/key/file.pub]
         '''
         km = key.KeyManager(self.target)
         if len(args) > 0:
@@ -119,9 +152,13 @@ class ITsuru(cmdln.Cmdln):
         else:
             km.add()
 
+    @cmdln.alias("ukr")
     @minargs_required(0)
-    def do_user_remove_key(self, subcmd, opts, *args):
-        '''Remove your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: user_remove_key [path/to/key/file.pub]
+    def do_user_key_remove(self, subcmd, opts, *args):
+        '''Remove your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).
+
+        Usage: 
+            user_key_remove [path/to/key/file.pub]
         '''
         km = key.KeyManager(self.target)
         if len(args) > 0:
@@ -132,42 +169,79 @@ class ITsuru(cmdln.Cmdln):
 
     ################## Team commands ####################
 
+    @cmdln.alias("tc")
     @minargs_required(1)
     def do_team_create(self, subcmd, opts, *args):
-        '''Creates a new team.\nUsage: team_create <name>'''
+        '''Creates a new team.
+
+        Usage: 
+            team_create <name>
+        '''
         name = args[0]
         am = auth.AuthManager(self.target)
         am.createTeam(name)        
 
+    @cmdln.alias("tr")
     @minargs_required(1)
     def do_team_remove(self, subcmd, opts, *args):
-        '''Removes a team from tsuru server.\nUsage: team_remove <name>'''
+        '''Removes a team from tsuru server.
+
+        Usage: 
+            team_remove <name>
+        '''
         name = args[0]
         am = auth.AuthManager(self.target)
         am.removeTeam(name)
 
+    @cmdln.alias("tua")
     @minargs_required(2)
     def do_team_user_add(self, subcmd, opts, *args):
-        '''adds a user to a team.\nUsage: team_user_add <teamname> <useremail>
+        '''Adds a user to a team.
+
+        Usage: 
+            team_user_add <teamname> <useremail>
         '''
         x = args
         tname, uname = x[0], x[1]
         am = auth.AuthManager(self.target)
         am.addTeamUser(tname, uname)
 
+    @cmdln.alias("tur")
+    @minargs_required(2)
+    def do_team_user_remove(self, subcmd, opts, *args):
+        '''Removes a user from a team.
+
+        Usage: 
+            team_user_remove <teamname> <useremail>
+        '''
+        x = args
+        tname, uname = x[0], x[1]
+        am = auth.AuthManager(self.target)
+        am.removeTeamUser(tname, uname)
+
+    @cmdln.alias("tl")
     def do_team_list(self, subcmd, opts, *args):
-        '''List all teams that you are member.\nUsage: team_list
+        '''List all teams that you are member.
+
+        Usage: 
+            team_list
         '''
         am = auth.AuthManager(self.target)
         am.listTeam()
 
     ################## App commands ####################
+
+    @cmdln.alias("al")
     def do_app_list(self, subcmd, opts, *args):
-        '''Get a list of all apps.\nUsage: app_list
+        '''Get a list of all apps.
+
+        Usage: 
+            app_list
         '''
         apm = apps.AppManager(self.target)
         apm.list()
 
+    @cmdln.alias("ac")
     @minargs_required(2)
     def do_app_create(self, subcmd, opts, *args):
         '''Create an app.\nUsage: app_create <name> <framework> 
@@ -179,6 +253,7 @@ class ITsuru(cmdln.Cmdln):
         apm = apps.AppManager(self.target)
         apm.create(name, framework)
 
+    @cmdln.alias("ai")
     @minargs_required(1)
     def do_app_info(self, subcmd, opts, *args):
         """Show information about your app.\nUsage: app_info <appname>
@@ -187,6 +262,7 @@ class ITsuru(cmdln.Cmdln):
         apm = apps.AppManager(self.target)
         apm.get(name)
 
+    @cmdln.alias("ar")
     @minargs_required(1)
     def do_app_remove(self, subcmd, opts, *args):
         """Remove an app.\nUsage: app_remove <appname>
@@ -195,6 +271,7 @@ class ITsuru(cmdln.Cmdln):
         apm = apps.AppManager(self.target)
         apm.remove(name)
 
+    @cmdln.alias("aua")
     @minargs_required(1)
     def do_app_unit_add(self, subcmd, opts, *args):
         """Add a new unit to an app.\nUsage: app_unit_add <appname> [numunits=1]
@@ -207,6 +284,7 @@ class ITsuru(cmdln.Cmdln):
         apm = apps.AppManager(self.target)
         apm.unitadd(aname, numunits)
 
+    @cmdln.alias("aur")
     @minargs_required(1)
     def do_app_unit_remove(self, subcmd, opts, *args):
         """Remove units from an app.\nUsage: app_unit_remove <appname> [numunits=1]
@@ -232,13 +310,6 @@ class ITsuru(cmdln.Cmdln):
         import string
         os.system(string.join(args))
 
-    @cmdln.alias("anot", "an")
-    @cmdln.option("-a", action="store_true", dest="all")
-    @cmdln.option("-c", action="store_true", dest="changenums")
-    @cmdln.option("-q", action="store_true", dest="quiet")
-    def do_annotate(self, subcmd, opts, *args):
-        """Print file lines along with their revisions"""
-        print "p4 %s: opts=%s action=%r" % (subcmd, opts, args)
 
 
 if __name__ == '__main__':

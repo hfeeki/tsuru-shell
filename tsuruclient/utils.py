@@ -10,7 +10,7 @@ from configs import TOKEN_FN, KEY_FN, IDENT
 
 def readToken(fn=TOKEN_FN):
     with open(fn) as f:
-        token = f.read().strip()
+        token = f.read().strip().split()[1]
         return token
 
 def readkey(fn=KEY_FN):      

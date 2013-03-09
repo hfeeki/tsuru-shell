@@ -35,20 +35,27 @@ class AuthManager(object):
             print "User '%s' failed to created! Reason: %s" % (email, response.content)
 
     @login_required
-    def removeUser(self, email):
+    def removeUser(self):
         """removes your user from tsuru server.
         """
         # http DELETE http://127.0.0.1:7080/user/user2@gmail.com
         q = "Are you sure you want to remove your user from tsuru? (y/n) "
         a = raw_input(q)
-        if a != "y" or a != "Y":
+        if a == "n" or a == "N":
             print("Abort.")
             return
-        response = requests.delete("{0}/users/{1}".format(self.target, email))
+        response = requests.delete(
+            "{0}/users".format(self.target),
+            headers = self.auhd            
+        )
         if response.ok:
-            print "Remove '%s' successfully!" % email
+            # remove local token file
+            fn = TOKEN_FN
+            if os.path.exists(fn):
+                os.remove(fn)
+            print "Remove user successfully!" 
         else:
-            print "Remove '%s' failed!\nReason: %s" % (email, response.content)
+            print "Remove user failed!\nReason: %s" % (response.content)
 
     def login(self, email):
         '''Login to server.
@@ -73,18 +80,25 @@ class AuthManager(object):
             c = response.json()['token']
             fn = TOKEN_FN
             with open(fn, 'w') as f:
-                f.write(c)
+                f.write(email + " " + c)
             print("Successfully logged in!")
         else:
             print("Failed to logged in!\nReason: %s" % response.content)
 
-    @login_required
     def logout(self):
         '''clear local authentication credentials.'''
         fn = TOKEN_FN
         if os.path.exists(fn):
             os.remove(fn)
             print("Successfully logged out!")
+        else:
+            print("You're not logged in!")
+
+    def status(self):
+        fn = TOKEN_FN
+        if os.path.exists(fn):
+            u = open(fn).read().split()[0]
+            print("You: %s have logged in!" % u)
         else:
             print("You're not logged in!")
      
@@ -165,12 +179,17 @@ class AuthManager(object):
             headers = self.auhd
         )
         if response.ok:
-            # list all of teams
-            ts = response.json()
-            print(" name")
-            print("======")
-            for x in ts:
-                print(' ' + x['name'])
+            if len(response.content.strip()) == 0:
+                print(" name")
+                print("======")
+                return 
+            else:
+                # list all of teams
+                ts = response.json()
+                print(" name")
+                print("======")
+                for x in ts:
+                    print(' ' + x['name'])
         else:
             print("Failed to list all of teams.\nReason: %s" % response.content) 
 
