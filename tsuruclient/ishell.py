@@ -20,6 +20,7 @@ except:
 import apps   
 import auth
 import key
+import env
 
 from configs import TARGET_FN, IDENT, DefaultTarget
 from utils import minargs_required
@@ -244,7 +245,10 @@ class ITsuru(cmdln.Cmdln):
     @cmdln.alias("ac")
     @minargs_required(2)
     def do_app_create(self, subcmd, opts, *args):
-        '''Create an app.\nUsage: app_create <name> <framework> 
+        '''Create an app.
+
+        Usage: 
+            app_create <name> <framework> 
         '''
         #x = minargs_check(args, 2)
         #if args is not None:
@@ -256,7 +260,10 @@ class ITsuru(cmdln.Cmdln):
     @cmdln.alias("ai")
     @minargs_required(1)
     def do_app_info(self, subcmd, opts, *args):
-        """Show information about your app.\nUsage: app_info <appname>
+        """Show information about your app.
+
+        Usage: 
+            app_info <appname>
         """
         name = args[0]
         apm = apps.AppManager(self.target)
@@ -265,7 +272,10 @@ class ITsuru(cmdln.Cmdln):
     @cmdln.alias("ar")
     @minargs_required(1)
     def do_app_remove(self, subcmd, opts, *args):
-        """Remove an app.\nUsage: app_remove <appname>
+        """Remove an app.
+
+        Usage: 
+            app_remove <appname>
         """
         name = args[0]
         apm = apps.AppManager(self.target)
@@ -274,7 +284,10 @@ class ITsuru(cmdln.Cmdln):
     @cmdln.alias("aua")
     @minargs_required(1)
     def do_app_unit_add(self, subcmd, opts, *args):
-        """Add a new unit to an app.\nUsage: app_unit_add <appname> [numunits=1]
+        """Add a new unit to an app.
+
+        Usage: 
+            app_unit_add <appname> [numunits=1]
         """
         aname = args[0]
         if len(args) > 1:
@@ -287,7 +300,10 @@ class ITsuru(cmdln.Cmdln):
     @cmdln.alias("aur")
     @minargs_required(1)
     def do_app_unit_remove(self, subcmd, opts, *args):
-        """Remove units from an app.\nUsage: app_unit_remove <appname> [numunits=1]
+        """Remove units from an app.
+
+        Usage: 
+            app_unit_remove <appname> [numunits=1]
         """
         aname = args[0]
         if len(args) > 1:
@@ -296,6 +312,50 @@ class ITsuru(cmdln.Cmdln):
             numunits = 1
         apm = apps.AppManager(self.target)
         apm.unitremove(aname, numunits)
+
+    @cmdln.alias("es")
+    @cmdln.option("-a", "--app", dest="app")
+    def do_env_set(self, subcmd, opts, *args):
+        """Set environment variables for an app.
+
+        Usage: 
+            env-set <--app appname> <NAME=value> [NAME=value] ... 
+        """        
+        parser = self.get_optparser()
+        (options, argx) = parser.parse_args()
+        app = options.app 
+        em = env.EnvManager(self.target)
+        em.set(app, argx)
+
+    @cmdln.alias("eg")
+    @cmdln.option("-a", "--app", dest="app")
+    def do_env_get(self, subcmd, opts, *args):
+        """Retrieve environment variables for an app.
+
+        Usage: 
+            env-get <--app appname> [ENVIRONMENT_VARIABLE1] [ENVIRONMENT_VARIABLE2] ...
+        """        
+        parser = self.get_optparser()
+        (options, argx) = parser.parse_args()
+        app = options.app 
+        em = env.EnvManager(self.target)
+        em.get(app, argx)   
+
+    @cmdln.alias("eu")
+    @cmdln.option("-a", "--app", dest="app")
+    def do_env_unset(self, subcmd, opts, *args):
+        """Unset environment variables for an app.
+
+        Usage: 
+            env-unset <--app appname> <ENVIRONMENT_VARIABLE1> [ENVIRONMENT_VARIABLE2] ... [ENVIRONMENT_VARIABLEN]
+        """        
+        parser = self.get_optparser()
+        (options, argx) = parser.parse_args()
+        app = options.app 
+        em = env.EnvManager(self.target)
+        em.unset(app, argx)   
+
+    ################## Misc commands ####################
 
     @cmdln.alias("quit")
     def do_exit(self, subcmd, opts, *args):
