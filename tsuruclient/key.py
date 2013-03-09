@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
 import json
 import requests
 from utils import login_required, readkey
@@ -9,13 +13,13 @@ class KeyManager(object):
         self.target = target        
 
     @login_required
-    def remove(self):
-        '''Remove your public key ($HOME/.ssh/id_rsa.pub by default).\nUsage: key-remove [path/to/key/file.pub]
+    def remove(self, fn=KEY_FN):
+        '''Remove your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: key-remove [path/to/key/file.pub]
         '''
-        if not os.path.exists(KEY_FN):
-            print("You don't have a public key\nTo generate a key use 'ssh-keygen' command\n")
+        if not os.path.exists(fn):
+            print("You don't have a tsuru public key\nTo generate a tsuru key use 'ssh-keygen -f tsuru_id_rsa' command\n")
             return 
-        key = readkey()
+        key = readkey(fn)
         data = {
             'key': key
         }
@@ -31,13 +35,13 @@ class KeyManager(object):
         return response.content
 
     @login_required
-    def add(self):
-        '''Add your public key ($HOME/.ssh/id_rsa.pub by default).\nUsage: key-add [path/to/key/file.pub]
+    def add(self, fn=KEY_FN):
+        '''Add your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: key-add [path/to/key/file.pub]
         '''
-        if not os.path.exists(KEY_FN):
-            print("You don't have a public key\nTo generate a key use 'ssh-keygen' command\n")
+        if not os.path.exists(fn):
+            print("You don't have a tsuru public key\nTo generate a tsuru key use 'ssh-keygen -f tsuru_id_rsa' command\n")
             return 
-        key = readkey()
+        key = readkey(fn)
         data = {
             'key': key
         }

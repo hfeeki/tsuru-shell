@@ -18,8 +18,9 @@ except:
 
 import apps   
 import auth
+import key
 
-from configs import TARGET_FN
+from configs import TARGET_FN, IDENT
 from utils import minargs_required
 
 class Console(cmd.Cmd):
@@ -133,53 +134,83 @@ class ITsuru(Console):
             with open(fn, 'w') as f:
                 f.write(target)
             self.target = target
-            print "Set target as %s success." % target
-        print "Current target is: %s ." % self.target        
+            print("Set target as %s success." % target)
+        print("Current target is: %s ." % self.target)
 
     def help_target(self):
-        print "get or set target.\nUsage: target [url]"
+        print("Get or set target.\nUsage: target [url]")
+
+    ################## User commands ####################
 
     @minargs_required(1)
-    def do_user_add(self, email):
-        '''Creates a user.\nUsage: useradd <email>'''
+    def do_user_create(self, args):
+        '''Creates a user.\nUsage: user_create <email>'''
         # check email is valid
         # create a user with email
-        if email is None or len(email)==0:
-            print "Usage: user_add <email>\nemail is required."
-            return 
+        email = self.argx[0]
         am = auth.AuthManager(self.target)
         am.createUser(email)
 
-    def do_user_remove(self, email):
-        '''removes your user from tsuru server.'''
+    def do_user_remove(self, args):
+        '''Removes your user from server.'''
         am = auth.AuthManager(self.target)
-        am.removeUser(email)
+        am.removeUser()
 
-    def do_login(self, email):
+    @minargs_required(1)
+    def do_login(self, args):
         '''Login to server.\nUsage: login <email>
         ''' 
-        if email is None or len(email)==0:
-            print "Usage: login <email>\nemail is required."
-            return
+        email = self.argx[0]
         am = auth.AuthManager(self.target)
         am.login(email)
         return 
 
-    def do_logout(self, arg):
-        '''clear local authentication credentials.\nUsage: logout
+    def do_logout(self, args):
+        '''Clear local authentication credentials.\nUsage: logout
         '''
         am = auth.AuthManager(self.target)
         am.logout()
 
+    def do_change_password(self, args):
+        '''Change your password.\nUsage: change_password'''
+        am = auth.AuthManager(self.target)
+        am.changePassword()
+
+    @minargs_required(0)
+    def do_user_add_key(self, args):
+        '''Add your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: user_add_key [path/to/key/file.pub]
+        '''
+        km = key.KeyManager(self.target)
+        if len(self.argx) > 0:
+            fn = self.argx[0]            
+            km.add(fn)
+        else:
+            km.add()
+
+    @minargs_required(0)
+    def do_user_remove_key(self, args):
+        '''Remove your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: user_remove_key [path/to/key/file.pub]
+        '''
+        km = key.KeyManager(self.target)
+        if len(self.argx) > 0:
+            fn = self.argx[0]            
+            km.remove(fn)
+        else:
+            km.remove()
+
+    ################## Team commands ####################
+
     @minargs_required(1)
-    def do_team_create(self, name):
+    def do_team_create(self, args):
         '''Creates a new team.\nUsage: team_create <name>'''
+        name = self.argx[0]
         am = auth.AuthManager(self.target)
         am.createTeam(name)        
 
     @minargs_required(1)
-    def do_team_remove(self, name):
-        '''removes a team from tsuru server.\nUsage: team_remove <name>'''
+    def do_team_remove(self, args):
+        '''Removes a team from tsuru server.\nUsage: team_remove <name>'''
+        name = self.argx[0]
         am = auth.AuthManager(self.target)
         am.removeTeam(name)
 
@@ -198,6 +229,7 @@ class ITsuru(Console):
         am = auth.AuthManager(self.target)
         am.listTeam()
 
+    ################## App commands ####################
     def do_app_list(self, args):
         '''Get a list of all apps.\nUsage: app_list
         '''
@@ -217,7 +249,7 @@ class ITsuru(Console):
 
     @minargs_required(1)
     def do_app_info(self, args):
-        """Show information about your app.
+        """Show information about your app.\nUsage: app_info <appname>
         """
         name = self.argx[0]
         apm = apps.AppManager(self.target)
@@ -254,6 +286,8 @@ class ITsuru(Console):
             numunits = 1
         apm = apps.AppManager(self.target)
         apm.unitremove(aname, numunits)
+
+    
 
 
 if __name__ == '__main__':
