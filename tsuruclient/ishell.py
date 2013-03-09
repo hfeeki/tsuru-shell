@@ -27,6 +27,7 @@ from utils import minargs_required
 
 class ITsuru(cmdln.Cmdln):
     name = "tsuru"
+    #prompt = "tsuru> "
 
     def __init__(self):
         cmdln.Cmdln.__init__(self)
@@ -35,12 +36,6 @@ class ITsuru(cmdln.Cmdln):
 
         #self.apps = apps.AppManager(self.target)
         #self.auth = auth.AuthManager(self.target)
-
-    def get_optparser(self):
-        parser = cmdln.Cmdln.get_optparser(self)
-        parser.add_option("-s", "--shell", action="store_true", 
-            help="enter interactive shell")
-        return parser
 
     def _get_target(self):
         fn = TARGET_FN
@@ -71,7 +66,7 @@ class ITsuru(cmdln.Cmdln):
         '''Creates a user.\nUsage: user_create <email>'''
         # check email is valid
         # create a user with email
-        email = self.argx[0]
+        email = args[0]
         am = auth.AuthManager(self.target)
         am.createUser(email)
 
@@ -91,7 +86,7 @@ class ITsuru(cmdln.Cmdln):
 
         ${cmd_option_list}
         ''' 
-        email = self.argx[0]
+        email = args[0]
         am = auth.AuthManager(self.target)
         am.login(email)
         return 
@@ -118,8 +113,8 @@ class ITsuru(cmdln.Cmdln):
         '''Add your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: user_add_key [path/to/key/file.pub]
         '''
         km = key.KeyManager(self.target)
-        if len(self.argx) > 0:
-            fn = self.argx[0]            
+        if len(args) > 0:
+            fn = args[0]            
             km.add(fn)
         else:
             km.add()
@@ -129,8 +124,8 @@ class ITsuru(cmdln.Cmdln):
         '''Remove your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).\nUsage: user_remove_key [path/to/key/file.pub]
         '''
         km = key.KeyManager(self.target)
-        if len(self.argx) > 0:
-            fn = self.argx[0]            
+        if len(args) > 0:
+            fn = args[0]            
             km.remove(fn)
         else:
             km.remove()
@@ -140,14 +135,14 @@ class ITsuru(cmdln.Cmdln):
     @minargs_required(1)
     def do_team_create(self, subcmd, opts, *args):
         '''Creates a new team.\nUsage: team_create <name>'''
-        name = self.argx[0]
+        name = args[0]
         am = auth.AuthManager(self.target)
         am.createTeam(name)        
 
     @minargs_required(1)
     def do_team_remove(self, subcmd, opts, *args):
         '''Removes a team from tsuru server.\nUsage: team_remove <name>'''
-        name = self.argx[0]
+        name = args[0]
         am = auth.AuthManager(self.target)
         am.removeTeam(name)
 
@@ -155,7 +150,7 @@ class ITsuru(cmdln.Cmdln):
     def do_team_user_add(self, subcmd, opts, *args):
         '''adds a user to a team.\nUsage: team_user_add <teamname> <useremail>
         '''
-        x = self.argx
+        x = args
         tname, uname = x[0], x[1]
         am = auth.AuthManager(self.target)
         am.addTeamUser(tname, uname)
@@ -178,8 +173,8 @@ class ITsuru(cmdln.Cmdln):
         '''Create an app.\nUsage: app_create <name> <framework> 
         '''
         #x = minargs_check(args, 2)
-        #if self.argx is not None:
-        x = self.argx 
+        #if args is not None:
+        x = args 
         name, framework = x[0], x[1]
         apm = apps.AppManager(self.target)
         apm.create(name, framework)
@@ -188,7 +183,7 @@ class ITsuru(cmdln.Cmdln):
     def do_app_info(self, subcmd, opts, *args):
         """Show information about your app.\nUsage: app_info <appname>
         """
-        name = self.argx[0]
+        name = args[0]
         apm = apps.AppManager(self.target)
         apm.get(name)
 
@@ -196,7 +191,7 @@ class ITsuru(cmdln.Cmdln):
     def do_app_remove(self, subcmd, opts, *args):
         """Remove an app.\nUsage: app_remove <appname>
         """
-        name = self.argx[0]
+        name = args[0]
         apm = apps.AppManager(self.target)
         apm.remove(name)
 
@@ -204,9 +199,9 @@ class ITsuru(cmdln.Cmdln):
     def do_app_unit_add(self, subcmd, opts, *args):
         """Add a new unit to an app.\nUsage: app_unit_add <appname> [numunits=1]
         """
-        aname = self.argx[0]
-        if len(self.argx) > 1:
-            numunits = self.argx[1]
+        aname = args[0]
+        if len(args) > 1:
+            numunits = args[1]
         else:
             numunits = 1
         apm = apps.AppManager(self.target)
@@ -216,13 +211,26 @@ class ITsuru(cmdln.Cmdln):
     def do_app_unit_remove(self, subcmd, opts, *args):
         """Remove units from an app.\nUsage: app_unit_remove <appname> [numunits=1]
         """
-        aname = self.argx[0]
-        if len(self.argx) > 1:
-            numunits = self.argx[1]
+        aname = args[0]
+        if len(args) > 1:
+            numunits = args[1]
         else:
             numunits = 1
         apm = apps.AppManager(self.target)
         apm.unitremove(aname, numunits)
+
+    @cmdln.alias("quit")
+    def do_exit(self, subcmd, opts, *args):
+        """Exit/Quit the interactive shell"""
+        self.stdout.write('\n')
+        self.stdout.flush()
+        self.stop = True
+
+    @cmdln.alias("!", "sh")
+    def do_shell(self, subcmd, opts, *args):
+        """Pass command to a system shell when line begins with '!'"""
+        import string
+        os.system(string.join(args))
 
     @cmdln.alias("anot", "an")
     @cmdln.option("-a", action="store_true", dest="all")
@@ -235,5 +243,5 @@ class ITsuru(cmdln.Cmdln):
 
 if __name__ == '__main__':
     console = ITsuru()
-    sys.exit(console.main(argv=sys.argv, loop=cmdln.LOOP_NEVER))
+    sys.exit(console.main(argv=sys.argv, loop=cmdln.LOOP_IF_EMPTY))
 ## end of http://code.activestate.com/recipes/280500/ }}}

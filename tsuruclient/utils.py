@@ -38,14 +38,13 @@ def minargs_required(minnum):
     '''    
     def make_wrapper(f):
         @wraps(f)
-        def wrapper(self, *args, **kwargs): 
-            x = args[3].split() # third arg 
-            self.argx = x
-            if len(x) < minnum:
+        def wrapper(self, subcmd, opts, *args, **kwargs): 
+            # third arg is a tuple
+            if len(args) < minnum:
                 print("Invalid number of arguments.")
                 return                         
             else:                
-                return f(self, *args, **kwargs)
+                return f(self, subcmd, opts, *args, **kwargs)
 
         return wrapper
 
