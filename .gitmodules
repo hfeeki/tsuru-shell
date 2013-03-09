@@ -1,0 +1,3 @@
+[submodule "libs/cmdln"]
+	path = libs/cmdln
+	url = https://github.com/trentm/cmdln.git
