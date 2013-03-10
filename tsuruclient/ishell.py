@@ -20,7 +20,7 @@ import envs
 import services
 
 from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget
-from utils import minargs_required, getTarget, getCurrentUser
+from utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
 
 
 class ITsuru(cmdln.Cmdln):
@@ -34,10 +34,19 @@ class ITsuru(cmdln.Cmdln):
         self.intro  = "Welcome to tsuru console! Current target is: %s ." % self.target ## defaults to None
 
     def _getPrompt(self):
+        import urlparse
         t = self.target
+        netloc = urlparse.urlparse(t).netloc
         u = getCurrentUser()
-        p = "%s#%s> " % (u, t)
-        return p
+        prompt = self.prompt
+        if isLoggedIn():
+            prompt = "%s#%s(tsuru)> " % (u, netloc)
+        else:
+            prompt = "%s(tsuru)> " % (u)
+        return prompt
+
+    def postcmd(self, argv):
+        self.prompt = self._getPrompt()
 
     @cmdln.alias("t")
     def do_target(self, subcmd, opts, *args):

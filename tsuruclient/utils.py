@@ -18,6 +18,11 @@ def readkey(fn=KEY_FN):
         c = f.read().strip()
         return c       
 
+def isLoggedIn(fn=TOKEN_FN):
+    if os.path.exists(fn):
+        return True
+    return False
+
 def getTarget(fn = TARGET_FN):    
     target = DefaultTarget    
     if os.path.exists(fn):            
