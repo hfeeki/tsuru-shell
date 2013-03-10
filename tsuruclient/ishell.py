@@ -30,7 +30,9 @@ class ITsuru(cmdln.Cmdln):
 
     def __init__(self):
         cmdln.Cmdln.__init__(self)
-        self.target = getTarget()
+        dt = cfgdb.get_default_target()
+        self.target_name = dt[0]
+        self.target = dt[1]
         self.prompt = self._getPrompt()
         self.intro  = '''                                     
             ___________ __  ______  __  __
@@ -39,7 +41,7 @@ class ITsuru(cmdln.Cmdln):
            / /  ___/ / /_/ / _, _/ /_/ /  
           /_/  /____/\____/_/ |_|\____/   
                                                                                                      
-    Welcome! Current target is: %s .\n\n''' % self.target ## defaults to None
+    Welcome! Current target is %s - %s .\n\n''' % (self.target_name, self.target) ## defaults to None
 
     def _getPrompt(self):
         import urlparse
@@ -160,18 +162,18 @@ class ITsuru(cmdln.Cmdln):
         am.removeUser()
 
     @cmdln.alias("lgi")
-    @minargs_required(1)
+    @minargs_required(2)
     def do_login(self, subcmd, opts, *args):
         '''Login to server.
 
         Usage: 
-            login <email>
+            login <username> <email>
 
         ${cmd_option_list}
         ''' 
-        email = args[0]
+        name, email = args[0], args[1]
         am = users.AuthManager(self.target)
-        am.login(email)
+        am.login(name, email)
         # TODO: change the prompt
         return 
 

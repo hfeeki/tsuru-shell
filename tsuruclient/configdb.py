@@ -24,15 +24,15 @@ class ConfigDb(object):
         c = self.db.cursor()
         try:
             c.execute("""create table if not exists 
-                targets(name varchar(50) primary key,
-                        url varchar(500),
+                targets(name varchar(32),
+                        url varchar(128),
                         is_default integer default 0)
             """)
             c.execute("""create table if not exists
-                users(name varchar(25) unique, 
-                      email varchar(50) primary key,
+                users(name varchar(32) unique, 
+                      email varchar(128) primary key,
                       is_default integer default 0,
-                      token varchar(500))
+                      token varchar(256))
             """)        
             self.db.commit()
         finally:
@@ -62,7 +62,7 @@ class ConfigDb(object):
             c.execute("select * from targets where is_default=1")
             x = c.fetchone()
             if len(x) > 0:
-                return x # just fetch first one
+                return x # just is a tuple because we fetchone
             else:
                 return None
         finally:
@@ -157,12 +157,15 @@ class ConfigDb(object):
             c.execute("select * from users where is_default=1")
             x = c.fetchone()
             if len(x) > 0:
-                return x[0] # just fetch first one
+                return x # just fetch first one
             else:
                 return None
         finally:
             c.close() 
 
+    def get_default_token(self):
+        x = self.get_default_user()
+        return x[3]
 
 
 cfgdb = ConfigDb.Instance()

@@ -50,7 +50,7 @@ class AuthManager(object):
             headers = self.auhd            
         )
         if response.ok:
-            # remove local token file
+            # TODO: remove local token record
             fn = TOKEN_FN
             if os.path.exists(fn):
                 os.remove(fn)
@@ -58,7 +58,7 @@ class AuthManager(object):
         else:
             print "Remove user failed!\nReason: %s" % (response.content)
 
-    def login(self, email):
+    def login(self, name, email):
         '''Login to server.
         '''
         # http POST http://127.0.0.1:8080/users/xbee@outlook.com/tokens password=fq9798
@@ -79,9 +79,10 @@ class AuthManager(object):
         if response.ok:            
             # write it to $HOME/.tsuru_token
             c = response.json()['token']
-            fn = TOKEN_FN
-            with open(fn, 'w') as f:
-                f.write(email + " " + c)
+            cfgdb.add_user(name, email, c, True)
+            #fn = TOKEN_FN
+            #with open(fn, 'w') as f:
+            #    f.write(email + " " + c)
             print("Successfully logged in!")
         else:
             print("Failed to logged in!\nReason: %s" % response.content)
