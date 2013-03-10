@@ -54,7 +54,7 @@ class EnvManager(object):
             "{0}/apps/{1}/env".format(self.target, app),
             data=string.join(vars, " "),
             headers = self.auhd # must use login_required
-        )
+        )        
         if response.ok:
             print("Set environment variables successfully!")
         else:

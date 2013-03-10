@@ -12,10 +12,6 @@
 import os
 import sys
 import cmdln
-try:
-    import readline
-except:
-    readline = None
 
 import apps   
 import users
@@ -354,13 +350,15 @@ class ITsuru(cmdln.Cmdln):
             app_env_unset <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
         parser = self.get_optparser()
-        (options, _) = parser.parse_args()
+        (options, _) = parser.parse_args(args)
         app = options.app 
         em = envs.EnvManager(self.target)
         em.unset(app, options.vars)   
 
     #################### Service commands ####################
 
+    @cmdln.alias("sa")
+    @minargs_required(2)
     def do_service_add(self, subcmd, opts, *args):
         '''Create a service instance to one or more apps make use of.
 
@@ -373,6 +371,78 @@ class ITsuru(cmdln.Cmdln):
             Will add a new instance of the "mongodb" service, named "tsuru_mongodb".
         '''
         sm = services.ServiceManager(self.target)
+        svcname, instname = args[0], args[1]
+        sm.add(svcname, instname)
+
+    @cmdln.alias("sl")
+    def do_service_list(self, subcmd, opts, *args):
+        '''Get all available services, and user's instances for this services.
+
+        Usage:
+            service_list 
+        '''
+        sm = services.ServiceManager(self.target)
+        sm.list()
+
+    @cmdln.alias("sb")
+    @minargs_required(2)
+    def do_service_bind(self, subcmd, opts, *args):
+        '''Bind a service instance to an app.
+
+        Usage:
+            service_bind <instancename> <appname>
+        '''
+        sm = services.ServiceManager(self.target)
+        instname, appname = args[0], args[1]
+        sm.bind(instname, appname)
+
+    @cmdln.alias("sub")
+    @minargs_required(2)
+    def do_service_unbind(self, subcmd, opts, *args):
+        '''Unbind a service instance from an app.
+
+        Usage:
+            service_unbind <instancename> <appname>
+        '''
+        sm = services.ServiceManager(self.target)
+        instname, appname = args[0], args[1]
+        sm.unbind(instname, appname)
+
+    @cmdln.alias("ss", "sst")
+    @minargs_required(1)
+    def do_service_status(self, subcmd, opts, *args):
+        '''Check status of a given service instance.
+
+        Usage:
+            service_status <instancename>
+        '''
+        sm = services.ServiceManager(self.target)
+        instname = args[0]
+        sm.status(instname)
+
+    @cmdln.alias("si")
+    @minargs_required(1)
+    def do_service_info(self, subcmd, opts, *args):
+        '''List all instances of a service.
+
+        Usage:
+            service_info <servicename>
+        '''
+        sm = services.ServiceManager(self.target)
+        svcname = args[0]
+        sm.info(svcname)
+
+    @cmdln.alias("sd")
+    @minargs_required(1)
+    def do_service_doc(self, subcmd, opts, *args):
+        '''Show documentation of a service.
+
+        Usage:
+            service_doc <servicename>
+        '''
+        sm = services.ServiceManager(self.target)
+        svcname = args[0]
+        sm.doc(svcname)
 
     #################### Misc commands ####################
 
