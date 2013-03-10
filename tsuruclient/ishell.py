@@ -18,9 +18,10 @@ except:
     readline = None
 
 import apps   
-import auth
-import key
-import env
+import users
+import keys
+import envs
+import services
 
 from configs import TARGET_FN, IDENT, DefaultTarget
 from utils import minargs_required
@@ -36,7 +37,7 @@ class ITsuru(cmdln.Cmdln):
         self.intro  = "Welcome to tsuru console! Current target is: %s ." % self.target ## defaults to None
 
         #self.apps = apps.AppManager(self.target)
-        #self.auth = auth.AuthManager(self.target)
+        #self.users = users.AuthManager(self.target)
 
     def _get_target(self):
         fn = TARGET_FN
@@ -78,7 +79,7 @@ class ITsuru(cmdln.Cmdln):
         # check email is valid
         # create a user with email
         email = args[0]
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.createUser(email)
 
     @cmdln.alias("ur")
@@ -88,7 +89,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             user_remove 
         '''
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.removeUser()
 
     @cmdln.alias("lgi")
@@ -102,7 +103,7 @@ class ITsuru(cmdln.Cmdln):
         ${cmd_option_list}
         ''' 
         email = args[0]
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.login(email)
         return 
 
@@ -115,7 +116,7 @@ class ITsuru(cmdln.Cmdln):
 
         ${cmd_option_list}
         '''
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.logout()
 
     @cmdln.alias("cp")
@@ -125,7 +126,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             change_password
         '''
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.changePassword()
 
     @cmdln.alias("st", "s")
@@ -135,18 +136,18 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             status 
         """
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.status()
 
     @cmdln.alias("uka")
     @minargs_required(0)
     def do_user_key_add(self, subcmd, opts, *args):
-        '''Add your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).
+        '''Add your public keys ($HOME/.ssh/tsuru_id_rsa.pub by default).
 
         Usage: 
-            user_add_key [path/to/key/file.pub]
+            user_add_key [path/to/keys/file.pub]
         '''
-        km = key.KeyManager(self.target)
+        km = keys.KeyManager(self.target)
         if len(args) > 0:
             fn = args[0]            
             km.add(fn)
@@ -161,7 +162,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             user_key_remove [path/to/key/file.pub]
         '''
-        km = key.KeyManager(self.target)
+        km = keys.KeyManager(self.target)
         if len(args) > 0:
             fn = args[0]            
             km.remove(fn)
@@ -179,7 +180,7 @@ class ITsuru(cmdln.Cmdln):
             team_create <name>
         '''
         name = args[0]
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.createTeam(name)        
 
     @cmdln.alias("tr")
@@ -191,7 +192,7 @@ class ITsuru(cmdln.Cmdln):
             team_remove <name>
         '''
         name = args[0]
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.removeTeam(name)
 
     @cmdln.alias("tua")
@@ -204,7 +205,7 @@ class ITsuru(cmdln.Cmdln):
         '''
         x = args
         tname, uname = x[0], x[1]
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.addTeamUser(tname, uname)
 
     @cmdln.alias("tur")
@@ -217,7 +218,7 @@ class ITsuru(cmdln.Cmdln):
         '''
         x = args
         tname, uname = x[0], x[1]
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.removeTeamUser(tname, uname)
 
     @cmdln.alias("tl")
@@ -227,7 +228,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             team_list
         '''
-        am = auth.AuthManager(self.target)
+        am = users.AuthManager(self.target)
         am.listTeam()
 
     ################## App commands ####################
@@ -313,49 +314,67 @@ class ITsuru(cmdln.Cmdln):
         apm = apps.AppManager(self.target)
         apm.unitremove(aname, numunits)
 
-    @cmdln.alias("es")
+    @cmdln.alias("aes")
     @cmdln.option("-a", "--app", dest="app")
-    def do_env_set(self, subcmd, opts, *args):
+    @cmdln.option("-v", "--vars", dest="vars")
+    def do_app_env_set(self, subcmd, opts, *args):
         """Set environment variables for an app.
 
         Usage: 
-            env-set <--app appname> <NAME=value> [NAME=value] ... 
+            app_env_set <--app appname> <--vars NAME=value [NAME=value] ...>  
         """        
         parser = self.get_optparser()
-        (options, argx) = parser.parse_args()
+        (options, _) = parser.parse_args(args)
         app = options.app 
-        em = env.EnvManager(self.target)
-        em.set(app, argx)
+        em = envs.EnvManager(self.target)
+        em.set(app, options.vars)
 
-    @cmdln.alias("eg")
+    @cmdln.alias("aeg")
     @cmdln.option("-a", "--app", dest="app")
-    def do_env_get(self, subcmd, opts, *args):
+    @cmdln.option("-v", "--vars", dest="vars")
+    def do_app_env_get(self, subcmd, opts, *args):
         """Retrieve environment variables for an app.
 
         Usage: 
-            env-get <--app appname> [ENVIRONMENT_VARIABLE1] [ENVIRONMENT_VARIABLE2] ...
+            app_env_get <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
         parser = self.get_optparser()
-        (options, argx) = parser.parse_args()
+        (options, _) = parser.parse_args(args)
         app = options.app 
-        em = env.EnvManager(self.target)
-        em.get(app, argx)   
+        em = envs.EnvManager(self.target)
+        em.get(app, options.vars)   
 
-    @cmdln.alias("eu")
+    @cmdln.alias("aeu")
     @cmdln.option("-a", "--app", dest="app")
-    def do_env_unset(self, subcmd, opts, *args):
+    @cmdln.option("-v", "--vars", dest="vars")
+    def do_app_env_unset(self, subcmd, opts, *args):
         """Unset environment variables for an app.
 
         Usage: 
-            env-unset <--app appname> <ENVIRONMENT_VARIABLE1> [ENVIRONMENT_VARIABLE2] ... [ENVIRONMENT_VARIABLEN]
+            app_env_unset <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
         parser = self.get_optparser()
-        (options, argx) = parser.parse_args()
+        (options, _) = parser.parse_args()
         app = options.app 
-        em = env.EnvManager(self.target)
-        em.unset(app, argx)   
+        em = envs.EnvManager(self.target)
+        em.unset(app, options.vars)   
 
-    ################## Misc commands ####################
+    #################### Service commands ####################
+
+    def do_service_add(self, subcmd, opts, *args):
+        '''Create a service instance to one or more apps make use of.
+
+        Usage: 
+            service-add <servicename> <instancename>
+
+            e.g.:
+                $ tsuru service_add mongodb tsuru_mongodb
+
+            Will add a new instance of the "mongodb" service, named "tsuru_mongodb".
+        '''
+        sm = services.ServiceManager(self.target)
+
+    #################### Misc commands ####################
 
     @cmdln.alias("quit")
     def do_exit(self, subcmd, opts, *args):
