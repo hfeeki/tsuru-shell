@@ -462,7 +462,7 @@ class ITsuru(cmdln.Cmdln):
 
     #################### Misc commands ####################
 
-    @cmdln.alias("quit")
+    @cmdln.alias("x", "q", "quit")
     def do_exit(self, subcmd, opts, *args):
         """Exit/Quit the interactive shell"""
         self.stdout.write('\n')
