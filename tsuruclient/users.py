@@ -15,7 +15,7 @@ class AuthManager(object):
     def __init__(self, target):
         self.target = target    
 
-    def createUser(self, email):        
+    def createUser(self, username, email):        
         password = getpass.getpass("Please input your password: ")
         confirm = getpass.getpass("Confirm: ")
         if password != confirm:

@@ -31,7 +31,14 @@ class ITsuru(cmdln.Cmdln):
         cmdln.Cmdln.__init__(self)
         self.target = getTarget()
         self.prompt = self._getPrompt()
-        self.intro  = "Welcome to tsuru console! Current target is: %s ." % self.target ## defaults to None
+        self.intro  = '''                                     
+            ___________ __  ______  __  __
+           /_  __/ ___// / / / __ \/ / / /
+            / /  \__ \/ / / / /_/ / / / / 
+           / /  ___/ / /_/ / _, _/ /_/ /  
+          /_/  /____/\____/_/ |_|\____/   
+                                                                                                     
+    Welcome! Current target is: %s .\n\n''' % self.target ## defaults to None
 
     def _getPrompt(self):
         import urlparse
@@ -40,9 +47,9 @@ class ITsuru(cmdln.Cmdln):
         u = getCurrentUser()
         prompt = self.prompt
         if isLoggedIn():
-            prompt = "%s#%s(tsuru)> " % (u, netloc)
+            prompt = "%s@%s#tsuru> " % (u, netloc)
         else:
-            prompt = "%s(tsuru)> " % (u)
+            prompt = "%s#tsuru> " % (u)
         return prompt
 
     def postcmd(self, argv):
@@ -70,18 +77,18 @@ class ITsuru(cmdln.Cmdln):
     ################## User commands ####################
 
     @cmdln.alias("uc")
-    @minargs_required(1)
+    @minargs_required(2)
     def do_user_create(self, subcmd, opts, *args):
         '''Creates a user.
 
         Usage: 
-            user_create <email>
+            user_create <username> <email>
         '''
         # check email is valid
         # create a user with email
-        email = args[0]
+        user, email = args[0], args[1]
         am = users.AuthManager(self.target)
-        am.createUser(email)
+        am.createUser(user, email)
 
     @cmdln.alias("ur")
     def do_user_remove(self, subcmd, opts, *args):

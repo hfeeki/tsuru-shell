@@ -47,8 +47,6 @@ from pprint import pprint
 import sys
 import datetime
 
-
-
 #---- globals
 
 LOOP_ALWAYS, LOOP_NEVER, LOOP_IF_EMPTY = range(3)
