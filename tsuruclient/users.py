@@ -98,7 +98,7 @@ class AuthManager(object):
         fn = TOKEN_FN
         if os.path.exists(fn):
             u = open(fn).read().split()[0]
-            print("You: %s have logged in!" % u)
+            print("You: %s have logged into %s !" % (u, self.target))
         else:
             print("You're not logged in!")
      

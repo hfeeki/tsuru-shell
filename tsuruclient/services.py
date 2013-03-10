@@ -69,11 +69,7 @@ class ServiceManager(object):
         )
         if response.ok:
             print("Instance %s successfully binded to the app %s." % (instancename, appname))
-            print('''The following environment variables are now available for use in your app:
-
-- %s
-
-For more details, please check the documentation for the service, using service-doc command.''' % string.join(response.json(), "\n ")            
+            print('''The following environment variables are now available for use in your app:\n- %s\nFor more details, please check the documentation for the service, using service-doc command.''' % string.join(response.json(), "\n "))
             #print("Key successfully removed!")
         else:
             print("Instance bind failed!\nReason: %s" % response.content)

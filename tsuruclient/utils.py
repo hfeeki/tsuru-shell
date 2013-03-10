@@ -5,7 +5,7 @@ import os
 import functools
 from functools import wraps
 import warnings
-from configs import TOKEN_FN, KEY_FN, IDENT
+from configs import TOKEN_FN, KEY_FN, TARGET_FN, CUSER_FN, IDENT, DefaultTarget, DefaultUser
 
 
 def readToken(fn=TOKEN_FN):
@@ -17,6 +17,20 @@ def readkey(fn=KEY_FN):
     with open(fn) as f:
         c = f.read().strip()
         return c       
+
+def getTarget(fn = TARGET_FN):    
+    target = DefaultTarget    
+    if os.path.exists(fn):            
+        with open(fn) as f:
+            target = f.read().strip()
+    return target   
+
+def getCurrentUser(fn=CUSER_FN):
+    user = DefaultUser
+    if os.path.exists(fn):
+        with open(fn) as f:
+            user = f.read().strip() 
+    return user
 
 def login_required(func):
     @wraps(func)

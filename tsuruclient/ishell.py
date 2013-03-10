@@ -19,8 +19,8 @@ import keys
 import envs
 import services
 
-from configs import TARGET_FN, IDENT, DefaultTarget
-from utils import minargs_required
+from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget
+from utils import minargs_required, getTarget, getCurrentUser
 
 
 class ITsuru(cmdln.Cmdln):
@@ -29,19 +29,15 @@ class ITsuru(cmdln.Cmdln):
 
     def __init__(self):
         cmdln.Cmdln.__init__(self)
-        self._get_target()
+        self.target = getTarget()
+        self.prompt = self._getPrompt()
         self.intro  = "Welcome to tsuru console! Current target is: %s ." % self.target ## defaults to None
 
-        #self.apps = apps.AppManager(self.target)
-        #self.users = users.AuthManager(self.target)
-
-    def _get_target(self):
-        fn = TARGET_FN
-        if os.path.exists(fn):            
-            with open(fn) as f:
-                self.target = f.read().strip()
-        else:
-            self.target = DefaultTarget    
+    def _getPrompt(self):
+        t = self.target
+        u = getCurrentUser()
+        p = "%s#%s> " % (u, t)
+        return p
 
     @cmdln.alias("t")
     def do_target(self, subcmd, opts, *args):
@@ -52,7 +48,7 @@ class ITsuru(cmdln.Cmdln):
         '''
         fn = TARGET_FN
         if len(args) < 1:
-            self._get_target()            
+            self.target = getTarget()
         else:
             # write target
             target = args.strip()
@@ -101,6 +97,7 @@ class ITsuru(cmdln.Cmdln):
         email = args[0]
         am = users.AuthManager(self.target)
         am.login(email)
+        # TODO: change the prompt
         return 
 
     @cmdln.alias("lgo")
@@ -114,6 +111,9 @@ class ITsuru(cmdln.Cmdln):
         '''
         am = users.AuthManager(self.target)
         am.logout()
+        # TODO: change the prompt
+        self.prompt = self._getPrompt()
+        return
 
     @cmdln.alias("cp")
     def do_change_password(self, subcmd, opts, *args):
