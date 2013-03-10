@@ -1,5 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python
+
 
 import os
 import functools
@@ -224,4 +225,86 @@ def ExpHandler(*posargs):
 
     return wrapper
 
+
+def singleton(cls):
+    ''' Use class as singleton. '''
+
+    cls.__new_original__ = cls.__new__
+
+    @functools.wraps(cls.__new__)
+    def singleton_new(cls, *args, **kw):
+        it =  cls.__dict__.get('__it__')
+        if it is not None:
+            return it
+
+        cls.__it__ = it = cls.__new_original__(cls, *args, **kw)
+        it.__init_original__(*args, **kw)
+        return it
+
+    cls.__new__ = singleton_new
+    cls.__init_original__ = cls.__init__
+    cls.__init__ = object.__init__
+
+    return cls
+
+
+class Singleton:
+    """
+    A non-thread-safe helper class to ease implementing singletons.
+    This should be used as a decorator -- not a metaclass -- to the
+    class that should be a singleton.
+
+    The decorated class should define at most one `__init__` function
+    that takes only the `self` argument. Other than that, there are
+    no restrictions that apply to the decorated class.
+
+    To get the singleton instance, use the `Instance` method. Trying
+    to use `__call__` will result in a `TypeError` being raised.
+
+    Usage:
+
+    @Singleton
+    class Foo:
+        def __init__(self):
+            print('Foo created')
+
+        def bar(self, obj):
+            print(obj)
+
+    foo = Foo()  # Wrong, raises SingletonError
+
+    foo = Foo.Instance() # Good; prints 'Foo created' 
+    goo = Foo.Instance() # Already created, prints nothing
+
+    print(goo is foo) # True
+
+    foo.bar('Hello, world! I\'m a singleton.')
+
+    """
+
+    def __init__(self, decorated):
+        self._decorated = decorated
+
+    def Instance(self):
+        """
+        Returns the singleton instance. Upon its first call, it creates a
+        new instance of the decorated class and calls its `__init__` method.
+        On all subsequent calls, the already created instance is returned.
+
+        """
+        try:
+            return self._instance
+        except AttributeError:
+            self._instance = self._decorated()
+            return self._instance
+
+    def __call__(self):
+        """
+        Call method that raises an exception in order to prevent creation
+        of multiple instances of the singleton. The `Instance` method should
+        be used instead.
+
+        """
+        raise TypeError(
+            'Singletons must be accessed through the `Instance` method.')
 

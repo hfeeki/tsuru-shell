@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
+
 # Copyright (c) 2012 Trent Mick
 # Copyright (c) 2002-2009 ActiveState Software Inc.
 # License: MIT (see LICENSE.txt for license details)

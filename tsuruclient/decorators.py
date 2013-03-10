@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ## {{{ http://code.activestate.com/recipes/577551/ (r2)
 #! /usr/bin/env python
 ######################################################################

@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python
 
 ## {{{ http://code.activestate.com/recipes/280500/ (r1)
 ## console.py
@@ -20,6 +20,7 @@ import envs
 import services
 
 from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget
+from configdb import cfgdb
 from utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
 
 
@@ -55,24 +56,82 @@ class ITsuru(cmdln.Cmdln):
     def postcmd(self, argv):
         self.prompt = self._getPrompt()
 
-    @cmdln.alias("t")
-    def do_target(self, subcmd, opts, *args):
+    @cmdln.alias("t", "target")
+    def do_target_get(self, subcmd, opts, *args):
         '''Get or set target.
 
         Usage: 
-            target [url]
+            target 
+            or
+            target_get 
+
         '''
-        fn = TARGET_FN
-        if len(args) < 1:
-            self.target = getTarget()
+        ts = cfgdb.get_targets()
+        for t in ts:
+            if t[2]==1:
+                print("%2s %-10s%s" % ('*', t[0], t[1]))
+            else:
+                print("%2s %-10s%s" % (' ', t[0], t[1]))
+        
+
+    @cmdln.alias("ta")
+    @cmdln.option("-d", "--default", action="store_true", dest="default")
+    def do_target_add(self, subcmd, opts, *args):
+        '''Add a new named target.
+
+        Usage:
+            target_add <name> <url> [-d]
+
+        ${cmd_option_list}
+        '''
+        name, url = args[0], args[1]
+        if opts.default :
+            cfgdb.add_target(name, url, True)
         else:
-            # write target
-            target = args.strip()
-            with open(fn, 'w') as f:
-                f.write(target)
-            self.target = target
-            print("Set target as %s success." % target)
-        print("Current target is: %s ." % self.target)
+            cfgdb.add_target(name, url)
+
+    @cmdln.alias("tr")
+    @cmdln.option("-n", "--name", dest="name")
+    @cmdln.option("-u", "--url", dest="url")
+    def do_target_remove(self, subcmd, opts, *args):
+        '''Remove a named target.
+
+        Usage:
+            target_remove <[-n name] [-u url]>
+
+        Note:
+            You can provide name or url or both of them. If both provided, only url will be used.
+
+        ${cmd_option_list}
+        '''
+        name, url = opts.name, opts.url
+        if opts.default :
+            cfgdb.remove_target(name, url, True)
+        else:
+            cfgdb.remove_target(name, url)
+
+    @cmdln.alias("tds")
+    @minargs_required(1)
+    def do_target_default_set(self, subcmd, opts, *args):
+        '''Set a named target as the only default.
+
+        Usage:
+            target_default_set <name> 
+        '''
+        name = args[0]
+        cfgdb.set_default_target(name)
+        
+    @cmdln.alias("tdg")
+    def do_target_default_get(self, subcmd, opts, *args):
+        '''Get the default target.
+
+        Usage:
+            target_default_get 
+        '''
+        x = cfgdb.get_default_target()
+        if x:
+            print("%2s %-10s%s" % ('*', x[0], x[1]))
+
 
     ################## User commands ####################
 
