@@ -1,7 +1,8 @@
 
 
 import os
-from nose.tools import ok_, eq_
+from nose.tools import ok_, eq_, istest, nottest, assert_equal
+from nose.tools import assert_not_equal, assert_raises
 import mock
 import unittest
 from tsuru import offtheshelf
@@ -60,8 +61,30 @@ class ConfigDbTestCase(unittest.TestCase):
         eq_(2, len(ts))
 
     def test_remove_target(self):
+        self.cfgdb.add_target("test", "http://localhost:7000")
+        self.cfgdb.add_target("test2", "http://localhost:6000")
+        ts = self.cfgdb.get_targets()
+        eq_(3, len(ts))
+        self.cfgdb.remove_target("test")
+        ts = self.cfgdb.get_targets()
+        eq_(2, len(ts))
         
+    def test_get_default_user(self):
+        x = self.cfgdb.get_default_user()
+        eq_(None, x)
 
+    def test_add_user(self):
+        self.cfgdb.add_user("tester", "abc@gmail.com", "token", True)
+        x = self.cfgdb.get_default_user()
+        assert_not_equal(None, x)
+        eq_('tester', x['name'])
+        eq_('abc@gmail.com', x['email'])
+
+    def test_remove_user(self):
+        pass
+
+    def test_x(self):
+        assert_equal(1, "Not Implemented")
 
 
 if __name__ == '__main__':
