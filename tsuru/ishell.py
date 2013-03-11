@@ -24,8 +24,11 @@ from configdb import cfgdb
 from utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
 from icolor import cformat
 
-r'''
-doctest 
+'''
+$ python ishell.py t
+   local     http://127.0.0.1:8080
+ * develop   http://192.168.33.10:8080
+   Test      http://localhost:6000
 '''
 class ITsuru(cmdln.Cmdln):
     name = "tsuru"

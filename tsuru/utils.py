@@ -6,9 +6,15 @@ import os
 import functools
 from functools import wraps
 import warnings
-from configs import TOKEN_FN, KEY_FN, TARGET_FN, CUSER_FN, IDENT, DefaultTarget, DefaultUser
+from configs import TOKEN_FN, KEY_FN, TARGET_FN, CUSER_FN
+from configs import IDENT, DefaultTarget, DefaultUser
 
 
+def error(msg):
+    from clint.textui import colored, puts, indent
+    with indent(4, quote=colored.red('error> ')):
+        puts(colored.red(msg))
+    print("\n")
 
 def readToken():
     from configdb import cfgdb
@@ -48,7 +54,7 @@ def login_required(func):
     def check_login(self, *args, **kw):
         x = readToken()
         if not x :
-            print("Please login first!\n")
+            error("Please login first!")
             return 
         else:
             self.tk = x # stored it in self.tk
@@ -67,7 +73,7 @@ def minargs_required(minnum):
         def wrapper(self, subcmd, opts, *args, **kwargs): 
             # third arg is a tuple
             if len(args) < minnum:
-                print("Invalid number of arguments.")
+                error("Invalid number of arguments.")
                 return                         
             else:                
                 return f(self, subcmd, opts, *args, **kwargs)
@@ -331,7 +337,7 @@ class Singleton:
     def __init__(self, decorated):
         self._decorated = decorated
 
-    def Instance(self):
+    def Instance(self, *args, **kwargs):
         """
         Returns the singleton instance. Upon its first call, it creates a
         new instance of the decorated class and calls its `__init__` method.
@@ -341,7 +347,7 @@ class Singleton:
         try:
             return self._instance
         except AttributeError:
-            self._instance = self._decorated()
+            self._instance = self._decorated(*args, **kwargs)
             return self._instance
 
     def __call__(self):

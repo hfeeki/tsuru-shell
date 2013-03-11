@@ -5,12 +5,13 @@ import offtheshelf
 from utils import Singleton
 from configs import DefaultDbName, DefaultTarget, WORK_HOME
 
-@Singleton
+
 class ConfigDb(object):
 
-    def __init__(self, name=DefaultDbName):
-        if not os.path.exists(WORK_HOME):
-            os.mkdir(WORK_HOME)
+    def __init__(self, name):
+        dn = os.path.dirname(name)
+        if not os.path.exists(dn):
+            os.mkdir(dn)
             
         self.dbname = name
         dbexists = False
@@ -117,5 +118,13 @@ class ConfigDb(object):
             else:
                 return False    
 
+@Singleton
+class MyConfigDb(ConfigDb):
+    '''
+    In order for good to test, so create a new singleton class.
+    '''
+    def __init__(self, dbn=DefaultDbName):
+        ConfigDb.__init__(self, dbn)
 
-cfgdb = ConfigDb.Instance()
+
+cfgdb = MyConfigDb.Instance(DefaultDbName)
