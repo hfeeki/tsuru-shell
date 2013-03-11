@@ -18,9 +18,9 @@ setup(
     author_email="hfeeki@gmail.com",
     install_requires=install_requires,
     tests_require=['unittest2'],
-    test_suite='tsuruclient.tests',
+    test_suite='tsuru.tests',
     entry_points="""
-        [console_scripts]
-        tsuru = tsuruclient.ishell:main    
+    [console_scripts]
+    tsuru = tsuru.ishell:main    
     """
 )

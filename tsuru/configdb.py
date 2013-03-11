@@ -3,13 +3,10 @@
 import os
 import offtheshelf 
 from utils import Singleton
-from configs import DefaultDbName, DefaultTarget
+from configs import DefaultDbName, DefaultTarget, WORK_HOME
 
 @Singleton
 class ConfigDb(object):
-
-    #def __new__(cls):
-    #    return object.__new__(cls)
 
     def __init__(self, name=DefaultDbName):
         if not os.path.exists(WORK_HOME):
