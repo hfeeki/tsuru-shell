@@ -2,7 +2,7 @@
 # Copyright (c) 2005 Trent Mick
 # License: MIT License
 
-"""Run doctests in various files in this project."""
+"""Run doctests in various files in this project. """
 
 import sys
 from os.path import dirname, abspath

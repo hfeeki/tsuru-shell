@@ -24,7 +24,9 @@ from configdb import cfgdb
 from utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
 from icolor import cformat
 
-
+r'''
+doctest 
+'''
 class ITsuru(cmdln.Cmdln):
     name = "tsuru"
     #prompt = "tsuru> "
