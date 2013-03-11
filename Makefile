@@ -10,5 +10,11 @@ test: deps clean
 build: 
 	@python setup.py build
 
+egg:
+	@python setup.py bdist_egg
+
+bdist:
+	@python setup.py bdist
+
 install: test build
 	@python setup.py install

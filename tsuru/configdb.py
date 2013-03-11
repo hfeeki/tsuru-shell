@@ -16,8 +16,6 @@ class ConfigDb(object):
         dbexists = False
         if os.path.exists(os.path.join(os.getcwd(), DefaultDbName)):
             dbexists = True
-        #self.db = offtheshelf.openDB(name)
-        #self._createTables()
         if not dbexists:
             self._insertInitData()
 
@@ -27,8 +25,6 @@ class ConfigDb(object):
             targets.insert({"name": "local", 
                             "url": DefaultTarget,
                             "default": True})
-            #users = db.get_collection("users")
-            #users.insert({'name': 'Guest','email': None, 'token': None, 'default': True})
         return
 
     def get_targets(self):
