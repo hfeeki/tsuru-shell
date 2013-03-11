@@ -12,8 +12,11 @@ from configs import TOKEN_FN, KEY_FN, TARGET_FN, CUSER_FN, IDENT, DefaultTarget,
 
 def readToken():
     from configdb import cfgdb
-    x = cfgdb.get_default_token()
-    return x
+    x = cfgdb.get_default_user()
+    if x and x['token']:
+        return x['token']
+    else:
+        return None
 
 def readkey(fn=KEY_FN):      
     with open(fn) as f:
@@ -34,20 +37,21 @@ def getTarget(fn = TARGET_FN):
 
 def getCurrentUser(fn=CUSER_FN):
     user = DefaultUser
-    if os.path.exists(fn):
-        with open(fn) as f:
-            user = f.read().strip() 
+    from configdb import cfgdb    
+    x = cfgdb.get_default_user()
+    if x:
+        user = x['name']    
     return user
 
 def login_required(func):
     @wraps(func)
     def check_login(self, *args, **kw):
         x = readToken()
-        if x:
+        if not x :
             print("Please login first!\n")
             return 
         else:
-            self.tk = x['token'] # stored it in self.tk
+            self.tk = x # stored it in self.tk
             self.auhd = {'Authorization': self.tk}
             return func(self, *args, **kw)
 

@@ -35,18 +35,27 @@ class ITsuru(cmdln.Cmdln):
         self.target_name = dt['name']
         self.target = dt['url']
         self.prompt = self._getPrompt()
-        self.intro  = cformat('''#GREEN;                                     
-   ------------------------------------------------
-   |         ___________ __  ______  __  __       |
-   |        /_  __/ ___// / / / __ \/ / / /       |
-   |         / /  \__ \/ / / / /_/ / / / /        |
-   |        / /  ___/ / /_/ / _, _/ /_/ /         |
-   |       /_/  /____/\____/_/ |_|\____/          |
-   |                                              |
-   ------------------------------------------------                                                                                                  
+        self.intro  = cformat('''#BLUE;                                     
+   ----------------------------------------------------------
+   |        ______   _____    __  __   ____     __  __      |
+   |       /_  __/  / ___/   / / / /  / __ \   / / / /      |
+   |        / /     \__ \   / / / /  / /_/ /  / / / /       |
+   |       / /     ___/ /  / /_/ /  / _, _/  / /_/ /        |
+   |      /_/     /____/   \____/  /_/ |_|   \____/         |
+   |                                                        |
+   ----------------------------------------------------------
     Welcome! Current target is: %s - %s \n\n''' % (self.target_name, self.target)) ## defaults to None
 
     def _getPrompt(self):
+        '''  
+                   __   ____   _   __   ____     ____     __  __
+                  / /  /  _/  / | / /  / __ \   / __ \   / / / /
+             __  / /   / /   /  |/ /  / / / /  / / / /  / / / / 
+            / /_/ /  _/ /   / /|  /  / /_/ /  / /_/ /  / /_/ /  
+            \____/  /___/  /_/ |_/  /_____/   \____/   \____/   
+
+                                                                                                           
+        '''
         import urlparse        
         t = self.target
         netloc = urlparse.urlparse(t).netloc
@@ -219,6 +228,13 @@ class ITsuru(cmdln.Cmdln):
         """
         am = users.AuthManager(self.target)
         am.status()
+
+    @cmdln.alias("cu")
+    def do_user_current(self, subcmd, opts, *args):
+        """Show current user.
+        """
+        am = users.AuthManager(self.target)
+        am.getCurrentUser()        
 
     @cmdln.alias("uka")
     @minargs_required(0)

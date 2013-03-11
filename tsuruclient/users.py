@@ -100,10 +100,16 @@ class AuthManager(object):
     def status(self):
         x = cfgdb.get_default_user()
         if x and x['email'] and x['token']:
-            cfgdb.remove_user(name=x['name'], email=x['email'])
             print("You: %s have logged into %s !" % (x['name'], self.target))
         else:
             print("You're not logged in!")
+
+    def getCurrentUser(self):
+        x = cfgdb.get_default_user()
+        if x :
+            print("Current user is: %s, email: %s" % (x['name'], x['email']))
+        else:
+            print("There is no default user.")
      
     @login_required   
     def createTeam(self, name):
