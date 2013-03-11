@@ -15,7 +15,7 @@ class ConfigDb(object):
             
         self.dbname = name
         dbexists = False
-        if os.path.exists(os.path.join(os.getcwd(), DefaultDbName)):
+        if os.path.exists(self.dbname):
             dbexists = True
         if not dbexists:
             self._insertInitData()
@@ -59,6 +59,8 @@ class ConfigDb(object):
             self.set_default_target(name)
 
     def remove_target(self, name):
+        # TODO: if the target is the default one, 
+        #       we need chose one target as default
         with offtheshelf.openDB(self.dbname) as db:
             tcoll = db.get_collection("targets")
             tcoll.delete({'name': name})        
