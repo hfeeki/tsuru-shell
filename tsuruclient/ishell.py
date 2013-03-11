@@ -19,7 +19,7 @@ import keys
 import envs
 import services
 
-from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget
+from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
 from configdb import cfgdb
 from utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
 from icolor import cformat
@@ -420,11 +420,8 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             app_env_set <--app appname> <--vars NAME=value [NAME=value] ...>  
         """        
-        parser = self.get_optparser()
-        (options, _) = parser.parse_args(args)
-        app = options.app 
         em = envs.EnvManager(self.target)
-        em.set(app, options.vars)
+        em.set(opts.app, opts.vars)
 
     @cmdln.alias("aeg")
     @cmdln.option("-a", "--app", dest="app")
@@ -435,11 +432,8 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             app_env_get <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
-        parser = self.get_optparser()
-        (options, _) = parser.parse_args(args)
-        app = options.app 
         em = envs.EnvManager(self.target)
-        em.get(app, options.vars)   
+        em.get(opts.app, options.vars)   
 
     @cmdln.alias("aeu")
     @cmdln.option("-a", "--app", dest="app")
@@ -450,11 +444,8 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             app_env_unset <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
-        parser = self.get_optparser()
-        (options, _) = parser.parse_args(args)
-        app = options.app 
         em = envs.EnvManager(self.target)
-        em.unset(app, options.vars)   
+        em.unset(opts.app, options.vars)   
 
     #################### Service commands ####################
 
@@ -561,8 +552,16 @@ class ITsuru(cmdln.Cmdln):
         os.system(string.join(args))
 
 
+def main():
+    # setup our working environments
+    if not os.path.exists(WORK_HOME):
+        os.mkdir(WORK_HOME)
 
-if __name__ == '__main__':
     console = ITsuru()
     sys.exit(console.main(argv=sys.argv, loop=cmdln.LOOP_IF_EMPTY))
+
+
+if __name__ == '__main__':
+    main()
+    
 ## end of http://code.activestate.com/recipes/280500/ }}}

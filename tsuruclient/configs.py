@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sqlite3
 
 HOME = os.getenv('HOME')
+WORK_HOME = os.path.join(HOME, ".tsuru")
+
 TARGET_FN = os.path.join(HOME, '.tsuru_target')
 TOKEN_FN = os.path.join(HOME, '.tsuru_token')
 CUSER_FN = os.path.join(HOME, '.tsuru_current_user')
 #KEY_FN = os.path.join(HOME, '.ssh/id_rsa.pub')
 KEY_FN = os.path.join(HOME, '.ssh/tsuru_id_rsa.pub')
 
-DefaultTarget = "http://tsuru.plataformas.glb.com:8080"
+DefaultTarget = "http://127.0.0.1:8080"
 DefaultUser = "Guest"
-DefaultDbName = "configs.db"
+DefaultDbName = os.path.join(WORK_HOME, "configs.db")
 
 IDENT = 4 * " "
 

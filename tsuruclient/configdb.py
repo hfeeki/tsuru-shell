@@ -3,7 +3,7 @@
 import os
 import offtheshelf 
 from utils import Singleton
-from configs import DefaultDbName
+from configs import DefaultDbName, DefaultTarget
 
 @Singleton
 class ConfigDb(object):
@@ -12,6 +12,9 @@ class ConfigDb(object):
     #    return object.__new__(cls)
 
     def __init__(self, name=DefaultDbName):
+        if not os.path.exists(WORK_HOME):
+            os.mkdir(WORK_HOME)
+            
         self.dbname = name
         dbexists = False
         if os.path.exists(os.path.join(os.getcwd(), DefaultDbName)):
@@ -25,7 +28,7 @@ class ConfigDb(object):
         with offtheshelf.openDB(self.dbname) as db:
             targets = db.get_collection("targets")
             targets.insert({"name": "local", 
-                            "url": "http://127.0.0.1:8080",
+                            "url": DefaultTarget,
                             "default": True})
             #users = db.get_collection("users")
             #users.insert({'name': 'Guest','email': None, 'token': None, 'default': True})

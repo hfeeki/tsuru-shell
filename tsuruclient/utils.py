@@ -78,16 +78,16 @@ def minargs_required(minnum):
 
 
 '''
-    # http://code.activestate.com/recipes/454322-type-checking-decorator/
-    @require("x", int, float)
-    @require("y", float)
-    def foo(x, y):
-        return x+y
+# http://code.activestate.com/recipes/454322-type-checking-decorator/
+@require("x", int, float)
+@require("y", float)
+def foo(x, y):
+    return x+y
 
-    print foo(1, 2.5)      # Prints 3.5.
-    print foo(2.0, 2.5)    # Prints 4.5.
-    print foo("asdf", 2.5) # Raises TypeError exception.
-    print foo(1, 2)        # Raises TypeError exception.
+print foo(1, 2.5)      # Prints 3.5.
+print foo(2.0, 2.5)    # Prints 4.5.
+print foo("asdf", 2.5) # Raises TypeError exception.
+print foo(1, 2)        # Raises TypeError exception.
 '''
 def require(arg_name, *allowed_types):
     
@@ -230,6 +230,46 @@ def ExpHandler(*posargs):
         return newfunc
 
     return wrapper
+
+
+def log_event(event, objectid_attr=None, objectid_param=None):
+    """http://developers.freshbooks.com/blog/2010/04/27/logging-actions-with-python-decorators-part-i-decorating-logged-functions/
+    Decorator to send events to the event log
+
+    You must pass in the event name, and may pass in some method of
+    obtaining an objectid from the decorated function's parameters or
+    return value.
+
+    objectid_attr: The name of an attr on the return value, to be
+        extracted via getattr().
+    objectid_param: A string, specifies the name of the (kw)arg that
+        should be the objectid.
+
+    @log_event('Create Invoice', objectid_attr='invoiceid')  
+    def create_invoice(self, **attrs):  
+        # ...  
+        return invoice 
+
+    @log_event('Delete Invoice', objectid_param='invoiceid')  
+    def delete_invoice(self, invoiceid, **options):  
+        # ...  
+        return True  
+    """
+    def wrap(f):
+        @wraps(f)
+        def decorator(*args, **kwargs):
+            self = extract_param_by_name(f, args, kwargs, 'self')
+            value = f(*args, **kwargs)
+            if objectid_attr is not None:
+                event_objectids = getattr(value, objectid_attr)
+            elif objectid_param is not None:
+                event_objectids = extract_param_by_name(f, args, kwargs, objectid_param)
+            else:
+                event_objectids = None
+            self._log_event(event, event_objectids)
+            return value
+        return decorator
+    return wrap
 
 
 def singleton(cls):

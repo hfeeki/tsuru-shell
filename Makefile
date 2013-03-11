@@ -6,3 +6,9 @@ deps:
 
 test: deps clean
 	@nosetests -s . && flake8 .
+
+build: 
+	@python setup.py build
+
+install: test build
+	@python setup.py install

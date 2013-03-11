@@ -10,11 +10,17 @@ with open('requirements.txt') as reqs:
 
 
 setup(
-    name="python-tsuruclient",
+    name="tsuru",
     version=__version__,
     packages=find_packages(),
     description="Python bindings to tsuru REST API",
-    author="timeredbull",
-    author_email="timeredbull@corp.globo.com",
-    install_requires=install_requires
+    author="Michael",
+    author_email="hfeeki@gmail.com",
+    install_requires=install_requires,
+    tests_require=['unittest2'],
+    test_suite='tsuruclient.tests',
+    entry_points="""
+        [console_scripts]
+        tsuru = tsuruclient.ishell:main    
+    """
 )
