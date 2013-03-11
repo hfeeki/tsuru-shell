@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sqlite3
+import offtheshelf 
 from utils import Singleton
 from configs import DefaultDbName
 
@@ -12,160 +12,114 @@ class ConfigDb(object):
     #    return object.__new__(cls)
 
     def __init__(self, name=DefaultDbName):
+        self.dbname = name
         dbexists = False
         if os.path.exists(os.path.join(os.getcwd(), DefaultDbName)):
             dbexists = True
-        self.db = sqlite3.connect(name)
-        self._createTables()
+        #self.db = offtheshelf.openDB(name)
+        #self._createTables()
         if not dbexists:
             self._insertInitData()
 
-    def _createTables(self):
-        c = self.db.cursor()
-        try:
-            c.execute("""create table if not exists 
-                targets(name varchar(32),
-                        url varchar(128),
-                        is_default integer default 0)
-            """)
-            c.execute("""create table if not exists
-                users(name varchar(32) unique, 
-                      email varchar(128) primary key,
-                      is_default integer default 0,
-                      token varchar(256))
-            """)        
-            self.db.commit()
-        finally:
-            c.close()
-
     def _insertInitData(self):
-        c = self.db.cursor()
-        try:
-            sql = "insert into targets(name, url, is_default) values('default', 'http://127.0.0.1:8080', 1)"
-            c.execute(sql)
-            self.db.commit()
-        finally:
-            c.close()
+        with offtheshelf.openDB(self.dbname) as db:
+            targets = db.get_collection("targets")
+            targets.insert({"name": "local", 
+                            "url": "http://127.0.0.1:8080",
+                            "default": True})
+            #users = db.get_collection("users")
+            #users.insert({'name': 'Guest','email': None, 'token': None, 'default': True})
+        return
 
     def get_targets(self):
-        c = self.db.cursor()
-        try:        
-            c.execute("select * from targets")
-            x = c.fetchall()
-            return x
-        finally:
-            c.close()   
+        with offtheshelf.openDB(self.dbname) as db:
+            tcoll = db.get_collection("targets")
+            return tcoll.find() 
 
     def get_default_target(self):
-        c = self.db.cursor()
-        try:        
-            c.execute("select * from targets where is_default=1")
-            x = c.fetchone()
+        with offtheshelf.openDB(self.dbname) as db:
+            tcoll = db.get_collection("targets")
+            x = tcoll.find({'default': True})
             if len(x) > 0:
-                return x # just is a tuple because we fetchone
+                return x[0]
             else:
                 return None
-        finally:
-            c.close()   
 
     def set_default_target(self, name):
-        c = self.db.cursor()
-        try:
+        with offtheshelf.openDB(self.dbname) as db:
+            tcoll = db.get_collection("targets")
             # clear the old default target
-            sql = "update targets set is_default=0 where is_default=1"
-            c.execute(sql)        
+            tcoll.update({'default': False})
             # set the new default target
-            sql = "update targets set is_default=1 where name='%s'" % (name.lower())
-            c.execute(sql)            
-        finally:
-            c.close()
+            tcoll.update({'default': True}, {'name': name.lower()})        
 
     def add_target(self, name, url, is_default=False):
-        c = self.db.cursor()
-        try:        
-            if is_default:
-                # clear all old default target
-                sql = "update targets set is_default=0 where is_default=1"
-                c.execute(sql)
-                self.db.commit()
-            xd = 1 if is_default else 0
-            sql = "insert into targets(name, url, is_default) values('%s', '%s', %d)" % (name.lower(), url.lower(), xd)
-            c.execute(sql)      
-            self.db.commit()      
-        finally:
-            c.close()
+        with offtheshelf.openDB(self.dbname) as db:
+            tcoll = db.get_collection("targets")
+            tcoll.upsert({'name':name, 'url': url, 'default': False},
+                {'name': name})
+        if is_default:
+            self.set_default_target(name)
 
-    def remove_target(self, name=None, url=None):
-        c = self.db.cursor()
-        try:            
-            cond = None
-            if name and url:
-                cond = "name='%s' and url='%s'" % (name.lower(), url.lower())
-            elif name:
-                cond = "name='%s'" % name.lower()
-            elif url:
-                cond = "url='%s'" % url.lower()                            
-            sql = "delete from targets where '%s'" % cond
-            c.execute(sql)
-        finally:
-            c.close()
+    def remove_target(self, name):
+        with offtheshelf.openDB(self.dbname) as db:
+            tcoll = db.get_collection("targets")
+            tcoll.delete({'name': name})        
 
-    def add_user(self, name, email, token="", is_default=False):
-        c = self.db.cursor()
-        try:
-            xd = 1 if is_default else 0
-            sql = """insert into 
-                users(name, email, token, is_default) 
-                values('%s', '%s', '%s', %d)""" % (name.lower(), email.lower(), token, xd)
-            c.execute(sql)
-        finally:
-            c.close()
+    def add_user(self, name, email, token=None, is_default=False):
+        '''Add or update a user's info.
+        '''
+        with offtheshelf.openDB(self.dbname) as db:
+            coll = db.get_collection("users")
+            coll.upsert({'name':name, 'email': email, 'default': False, 'token': token},
+                {'name': name})
+        if is_default:
+            self.set_default_user(name)        
 
     def remove_user(self, name=None, email=None, token=None):
-        c = self.db.cursor()
-        try:
-            cond = None
+        with offtheshelf.openDB(self.dbname) as db:
+            coll = db.get_collection("users")
+            cond = {}
             if token:
-                cond = "token='%s'" % (token)
-            elif email:
-                cond = "email='%s'" % (email)
-            elif name:
-                cond = "name='%s'" % name            
-            sql = "delete from users where '%s'" % cond
-            c.execute(sql)
-        finally:
-            c.close()
-
-    def set_default_user(self, name=None, email=None):        
-        c = self.db.cursor()
-        try:        
-            # we need check the default user is the only one
-            sql = "update users set is_default=0 where is_default=1"
-            c.execute(sql)
-            # set the new default user
+                cond['token'] = token
             if email:
-                sql = "update users set is_default=1 where email='%s'" % (email)
-            elif name:
-                sql = "update users set is_default=1 where name='%s'" % (name)
-            c.execute(sql)
-        finally:
-            c.close()
+                cond['email'] = email
+            if name:
+                cond['name'] = name
+            coll.delete(cond)        
+
+    def set_default_user(self, name):  
+        with offtheshelf.openDB(self.dbname) as db:
+            coll = db.get_collection("users")
+            # clear the old default target
+            coll.update({'default': False})
+            # set the new default target
+            coll.update({'default': True}, {'name': name.lower()})        
 
     def get_default_user(self):
-        c = self.db.cursor()
-        try:        
-            c.execute("select * from users where is_default=1")
-            x = c.fetchone()
+        with offtheshelf.openDB(self.dbname) as db:
+            coll = db.get_collection("users")
+            x = coll.find({'default': True})
             if len(x) > 0:
-                return x # just fetch first one
+                return x[0]
             else:
-                return None
-        finally:
-            c.close() 
+                return None        
 
     def get_default_token(self):
         x = self.get_default_user()
-        return x[3]
+        if x and x['token']:
+            return x['token']
+        else:
+            return None
+
+    def is_user_loggedin(self, name):
+        with offtheshelf.openDB(self.dbname) as db:
+            coll = db.get_collection("users")
+            x = coll.find({'name': name})
+            if x and x['token'] and len(x['token'])>0:
+                return True
+            else:
+                return False    
 
 
 cfgdb = ConfigDb.Instance()

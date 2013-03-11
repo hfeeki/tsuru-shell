@@ -9,6 +9,7 @@ import getpass
 
 from configs import TOKEN_FN
 from utils import login_required
+from configdb import cfgdb
 
 
 class AuthManager(object):
@@ -63,7 +64,7 @@ class AuthManager(object):
         '''
         # http POST http://127.0.0.1:8080/users/xbee@outlook.com/tokens password=fq9798
         # if token file exists
-        if os.path.exists(TOKEN_FN):
+        if cfgdb.is_user_loggedin(name):
             a = raw_input("It looks like you have logged in, Do you realy want to login again? (y/n) ").strip()
             if a == 'n' or a == 'N':
                 print("Abort.")
@@ -88,19 +89,19 @@ class AuthManager(object):
             print("Failed to logged in!\nReason: %s" % response.content)
 
     def logout(self):
-        '''clear local authentication credentials.'''
-        fn = TOKEN_FN
-        if os.path.exists(fn):
-            os.remove(fn)
+        '''Clear default user's local authentication credentials.'''
+        x = cfgdb.get_default_user()
+        if x and x['email'] and x['token']:
+            cfgdb.remove_user(name=x['name'], email=x['email'])
             print("Successfully logged out!")
         else:
             print("You're not logged in!")
 
     def status(self):
-        fn = TOKEN_FN
-        if os.path.exists(fn):
-            u = open(fn).read().split()[0]
-            print("You: %s have logged into %s !" % (u, self.target))
+        x = cfgdb.get_default_user()
+        if x and x['email'] and x['token']:
+            cfgdb.remove_user(name=x['name'], email=x['email'])
+            print("You: %s have logged into %s !" % (x['name'], self.target))
         else:
             print("You're not logged in!")
      

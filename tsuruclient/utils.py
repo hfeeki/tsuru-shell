@@ -9,10 +9,11 @@ import warnings
 from configs import TOKEN_FN, KEY_FN, TARGET_FN, CUSER_FN, IDENT, DefaultTarget, DefaultUser
 
 
-def readToken(fn=TOKEN_FN):
-    with open(fn) as f:
-        token = f.read().strip().split()[1]
-        return token
+
+def readToken():
+    from configdb import cfgdb
+    x = cfgdb.get_default_token()
+    return x
 
 def readkey(fn=KEY_FN):      
     with open(fn) as f:
@@ -41,11 +42,12 @@ def getCurrentUser(fn=CUSER_FN):
 def login_required(func):
     @wraps(func)
     def check_login(self, *args, **kw):
-        if not os.path.exists(TOKEN_FN):
+        x = readToken()
+        if x:
             print("Please login first!\n")
             return 
         else:
-            self.tk = readToken(TOKEN_FN) # stored it in self.tk
+            self.tk = x['token'] # stored it in self.tk
             self.auhd = {'Authorization': self.tk}
             return func(self, *args, **kw)
 

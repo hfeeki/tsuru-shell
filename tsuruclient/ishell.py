@@ -22,6 +22,7 @@ import services
 from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget
 from configdb import cfgdb
 from utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
+from icolor import cformat
 
 
 class ITsuru(cmdln.Cmdln):
@@ -31,32 +32,40 @@ class ITsuru(cmdln.Cmdln):
     def __init__(self):
         cmdln.Cmdln.__init__(self)
         dt = cfgdb.get_default_target()
-        self.target_name = dt[0]
-        self.target = dt[1]
+        self.target_name = dt['name']
+        self.target = dt['url']
         self.prompt = self._getPrompt()
-        self.intro  = '''                                     
-            ___________ __  ______  __  __
-           /_  __/ ___// / / / __ \/ / / /
-            / /  \__ \/ / / / /_/ / / / / 
-           / /  ___/ / /_/ / _, _/ /_/ /  
-          /_/  /____/\____/_/ |_|\____/   
-                                                                                                     
-    Welcome! Current target is %s - %s .\n\n''' % (self.target_name, self.target) ## defaults to None
+        self.intro  = cformat('''#GREEN;                                     
+   ------------------------------------------------
+   |         ___________ __  ______  __  __       |
+   |        /_  __/ ___// / / / __ \/ / / /       |
+   |         / /  \__ \/ / / / /_/ / / / /        |
+   |        / /  ___/ / /_/ / _, _/ /_/ /         |
+   |       /_/  /____/\____/_/ |_|\____/          |
+   |                                              |
+   ------------------------------------------------                                                                                                  
+    Welcome! Current target is: %s - %s \n\n''' % (self.target_name, self.target)) ## defaults to None
 
     def _getPrompt(self):
-        import urlparse
+        import urlparse        
         t = self.target
         netloc = urlparse.urlparse(t).netloc
         u = getCurrentUser()
         prompt = self.prompt
         if isLoggedIn():
-            prompt = "%s@%s#tsuru> " % (u, netloc)
+            prompt = cformat("#GREEN;[%s@%s]tsuru> " % (u, netloc))
         else:
-            prompt = "%s#tsuru> " % (u)
+            prompt = cformat("#GREEN;[%s]tsuru> " % (u))
         return prompt
 
     def postcmd(self, argv):
         self.prompt = self._getPrompt()
+
+    @cmdln.alias("w", "wel")
+    def do_welcome(self, subcmd, opts, *args):
+        '''Show the welcome banner.
+        '''
+        print(self.intro)
 
     @cmdln.alias("t", "target")
     def do_target_get(self, subcmd, opts, *args):
@@ -70,14 +79,14 @@ class ITsuru(cmdln.Cmdln):
         '''
         ts = cfgdb.get_targets()
         for t in ts:
-            if t[2]==1:
-                print("%2s %-10s%s" % ('*', t[0], t[1]))
+            if t['default']:
+                print("%2s %-10s%s" % ('*', t['name'], t['url']))
             else:
-                print("%2s %-10s%s" % (' ', t[0], t[1]))
-        
+                print("%2s %-10s%s" % (' ', t['name'], t['url']))        
 
     @cmdln.alias("ta")
     @cmdln.option("-d", "--default", action="store_true", dest="default")
+    @minargs_required(2)
     def do_target_add(self, subcmd, opts, *args):
         '''Add a new named target.
 
@@ -123,7 +132,7 @@ class ITsuru(cmdln.Cmdln):
         name = args[0]
         cfgdb.set_default_target(name)
         
-    @cmdln.alias("tdg")
+    @cmdln.alias("dt", "tdg")
     def do_target_default_get(self, subcmd, opts, *args):
         '''Get the default target.
 
@@ -132,8 +141,7 @@ class ITsuru(cmdln.Cmdln):
         '''
         x = cfgdb.get_default_target()
         if x:
-            print("%2s %-10s%s" % ('*', x[0], x[1]))
-
+            print("%2s %-10s%s" % ('*', x['name'], x['url']))
 
     ################## User commands ####################
 
