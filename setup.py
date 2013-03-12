@@ -10,7 +10,7 @@ python setup.py bdist_egg # egg格式包
 '''
 
 from setuptools import setup, find_packages
-from tsuruclient import __version__
+from tsuru import __version__
 
 with open("README.md") as f:
     README = f.read()
@@ -26,8 +26,8 @@ with open('requirements.txt') as reqs:
 
 entry_points="""
 [console_scripts]
-tsuru = itsuru:main
-crane = icrane:main    
+tsuru = tsuru.itsuru:main
+crane = tsuru.icrane:main    
 """            
 
 setup(

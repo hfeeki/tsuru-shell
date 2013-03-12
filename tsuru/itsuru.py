@@ -13,11 +13,11 @@ import os
 import sys
 from libs import cmdln
 
-from tsuru import apps   
-from tsuru import users
-from tsuru import keys
-from tsuru import envs
-from tsuru import services
+from cmd import apps   
+from cmd import users
+from cmd import keys
+from cmd import envs
+from cmd import services
 
 from common.configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
 from libs.configdb import cfgdb
