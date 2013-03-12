@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
+import sys
+sys.path.append("..")
 
 import os
 import json
 import requests
 import getpass
 
-from libs.utils import login_required
-from libs.configdb import cfgdb
+from utils import login_required
+from configdb import cfgdb
 
 
 class AuthManager(object):

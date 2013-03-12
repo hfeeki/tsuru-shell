@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.append("..")
+
 import json
 import requests
-from libs.utils import login_required
+from utils import login_required, error
 
 class AppManager(object):
     """
@@ -104,5 +107,6 @@ class AppManager(object):
     def envget(self):
         '''Retrieve environment variables for an app. If you don't provide the app name, tsuru will try to guess it.\n
         '''
+        error("Not implemented!")
         
 

@@ -7,9 +7,9 @@ from nose.tools import ok_, eq_, istest, nottest, assert_equal
 from nose.tools import assert_not_equal, assert_raises
 import mock
 import unittest
-from libs import offtheshelf
-from libs.configdb import ConfigDb
-from common.configs import DefaultTarget
+from tsuru.libs import offtheshelf
+from tsuru.configdb import ConfigDb
+from tsuru.configs import DefaultTarget
 
 
 class ConfigDbTestCase(unittest.TestCase):

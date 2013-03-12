@@ -13,15 +13,15 @@ import os
 import sys
 from libs import cmdln
 
-from cmd import apps   
-from cmd import users
-from cmd import keys
-from cmd import envs
-from cmd import services
+from cmds import apps   
+from cmds import users
+from cmds import keys
+from cmds import envs
+from cmds import services
 
-from common.configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
-from libs.configdb import cfgdb
-from libs.utils import minargs_required, getCurrentUser, isLoggedIn
+from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
+from configdb import cfgdb
+from utils import minargs_required, getCurrentUser, isLoggedIn
 from libs.icolor import cformat
 
 '''

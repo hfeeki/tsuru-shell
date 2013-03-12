@@ -5,8 +5,8 @@ import os
 import functools
 from functools import wraps
 import warnings
-from common.configs import KEY_FN
-from common.configs import IDENT, DefaultTarget, DefaultUser
+from configs import KEY_FN
+from configs import IDENT, DefaultTarget, DefaultUser
 
 
 def error(msg):

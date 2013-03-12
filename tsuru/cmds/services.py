@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
-
+import sys
+sys.path.append("..")
 
 import os
 import string
 import json
 import requests
-from libs.utils import login_required, readkey
-from common.configs import KEY_FN
+from utils import login_required, readkey
+from configs import KEY_FN
 
 class ServiceManager(object):
 
