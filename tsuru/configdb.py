@@ -58,12 +58,25 @@ class ConfigDb(object):
         if is_default:
             self.set_default_target(name)
 
-    def remove_target(self, name):
-        # TODO: if the target is the default one, 
-        #       we need chose one target as default
+    def remove_target(self, name):        
         with offtheshelf.openDB(self.dbname) as db:
             tcoll = db.get_collection("targets")
-            tcoll.delete({'name': name})        
+            tcoll.delete({'name': name})
+            # if the target is the default one, 
+            # we need chose one target as default
+            tcoll = db.get_collection("targets")            
+            dts = tcoll.find({'default': True})
+            if len(dts)==0:
+                ts = tcoll.find()
+                if ts and len(ts) > 0:                
+                    tcoll.update({'default': True}, {'name': ts[0]['name']})
+
+    #######################################################################
+
+    def get_users(self):
+        with offtheshelf.openDB(self.dbname) as db:
+            tcoll = db.get_collection("users")
+            return tcoll.find() 
 
     def add_user(self, name, email, token=None, is_default=False):
         '''Add or update a user's info.
@@ -85,7 +98,15 @@ class ConfigDb(object):
                 cond['email'] = email
             if name:
                 cond['name'] = name
-            coll.delete(cond)        
+            coll.delete(cond)
+            # if the user is the default one, 
+            # we need chose a user as default
+            coll = db.get_collection("users")            
+            dus = coll.find({'default': True})
+            if len(dus)==0:
+                ts = coll.find()
+                if ts and len(ts) > 0:                
+                    coll.update({'default': True}, {'name': ts[0]['name']})
 
     def set_default_user(self, name):  
         with offtheshelf.openDB(self.dbname) as db:
@@ -115,7 +136,7 @@ class ConfigDb(object):
         with offtheshelf.openDB(self.dbname) as db:
             coll = db.get_collection("users")
             x = coll.find({'name': name})
-            if x and x['token'] and len(x['token'])>0:
+            if x and len(x) > 0 and x[0]['token'] and len(x[0]['token'])>0:
                 return True
             else:
                 return False    

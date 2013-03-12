@@ -52,17 +52,8 @@ class ITsuru(cmdln.Cmdln):
     Welcome! Current target is: %s - %s \n\n''' % (self.target_name, self.target)) ## defaults to None
 
     def _getPrompt(self):
-        '''  
-                   __   ____   _   __   ____     ____     __  __
-                  / /  /  _/  / | / /  / __ \   / __ \   / / / /
-             __  / /   / /   /  |/ /  / / / /  / / / /  / / / / 
-            / /_/ /  _/ /   / /|  /  / /_/ /  / /_/ /  / /_/ /  
-            \____/  /___/  /_/ |_/  /_____/   \____/   \____/   
-
-                                                                                                           
-        '''
         import urlparse        
-        t = self.target
+        t = self.target = cfgdb.get_default_target()['url']
         netloc = urlparse.urlparse(t).netloc
         u = getCurrentUser()
         prompt = self.prompt
@@ -116,24 +107,21 @@ class ITsuru(cmdln.Cmdln):
             cfgdb.add_target(name, url)
 
     @cmdln.alias("tr")
-    @cmdln.option("-n", "--name", dest="name")
-    @cmdln.option("-u", "--url", dest="url")
+    @minargs_required(1)
     def do_target_remove(self, subcmd, opts, *args):
         '''Remove a named target.
 
         Usage:
-            target_remove <[-n name] [-u url]>
+            target_remove <name>
 
         Note:
             You can provide name or url or both of them. If both provided, only url will be used.
 
         ${cmd_option_list}
         '''
-        name, url = opts.name, opts.url
-        if opts.default :
-            cfgdb.remove_target(name, url, True)
-        else:
-            cfgdb.remove_target(name, url)
+        name = args[0]
+        cfgdb.remove_target(name)
+
 
     @cmdln.alias("tds")
     @minargs_required(1)
@@ -158,6 +146,20 @@ class ITsuru(cmdln.Cmdln):
             print("%2s %-10s%s" % ('*', x['name'], x['url']))
 
     ################## User commands ####################
+
+    @cmdln.alias("ul")
+    def do_user_list(self, subcmd, opts, *args):
+        '''List local users.
+
+        Usage:
+            user_list 
+        '''
+        us = cfgdb.get_users()
+        for x in us:
+            if x['default']:
+                print("%2s %-10s%s" % ('*', x['name'], x['email']))
+            else:
+                print("%2s %-10s%s" % (' ', x['name'], x['email'])) 
 
     @cmdln.alias("uc")
     @minargs_required(2)

@@ -24,10 +24,8 @@ with open('requirements.txt') as reqs:
         if line and not line.startswith("--"):
             install_requires.append(line)
 
-entry_points="""
-[console_scripts]
-tsuru = tsuru.itsuru:main 
-"""            
+with open("entry_points.txt") as f:
+    ENTRY_POINTS = f.read()
 
 setup(
     name="tsuru",
@@ -44,5 +42,5 @@ setup(
     install_requires=install_requires,
     tests_require=['unittest2'],
     test_suite='tsuru.tests',
-    entry_points=entry_points
+    entry_points=ENTRY_POINTS,
 )

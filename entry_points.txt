@@ -1,0 +1,3 @@
+
+[console_scripts]
+tsuru = tsuru.itsuru:main 
