@@ -29,8 +29,8 @@ $ python ishell.py t
  * develop   http://192.168.33.10:8080
    Test      http://localhost:6000
 '''
-class ITsuru(cmdln.Cmdln):
-    name = "tsuru"
+class Crane(cmdln.Cmdln):
+    name = "crane"
     #prompt = "tsuru> "
 
     def __init__(self):

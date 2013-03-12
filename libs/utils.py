@@ -6,7 +6,6 @@ import os
 import functools
 from functools import wraps
 import warnings
-from configs import TOKEN_FN, KEY_FN, TARGET_FN, CUSER_FN
 from configs import IDENT, DefaultTarget, DefaultUser
 
 
@@ -23,31 +22,6 @@ def readToken():
         return x['token']
     else:
         return None
-
-def readkey(fn=KEY_FN):      
-    with open(fn) as f:
-        c = f.read().strip()
-        return c       
-
-def isLoggedIn(fn=TOKEN_FN):
-    if os.path.exists(fn):
-        return True
-    return False
-
-def getTarget(fn = TARGET_FN):    
-    target = DefaultTarget    
-    if os.path.exists(fn):            
-        with open(fn) as f:
-            target = f.read().strip()
-    return target   
-
-def getCurrentUser(fn=CUSER_FN):
-    user = DefaultUser
-    from configdb import cfgdb    
-    x = cfgdb.get_default_user()
-    if x:
-        user = x['name']    
-    return user
 
 def login_required(func):
     @wraps(func)

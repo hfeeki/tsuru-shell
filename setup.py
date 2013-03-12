@@ -24,6 +24,12 @@ with open('requirements.txt') as reqs:
         if line and not line.startswith("--"):
             install_requires.append(line)
 
+entry_points="""
+[console_scripts]
+tsuru = tsuru.ishell:main
+crane = crane.ishell:main    
+"""            
+
 setup(
     name="tsuru",
     version=__version__,
@@ -39,8 +45,5 @@ setup(
     install_requires=install_requires,
     tests_require=['unittest2'],
     test_suite='tsuru.tests',
-    entry_points="""
-    [console_scripts]
-    tsuru = tsuru.ishell:main    
-    """
+    entry_points=entry_points
 )
