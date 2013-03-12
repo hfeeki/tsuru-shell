@@ -6,8 +6,8 @@ import os
 import string
 import json
 import requests
-from utils import login_required, readkey
-from configs import KEY_FN
+from libs.utils import login_required, readkey
+from common.configs import KEY_FN
 
 class ServiceManager(object):
 

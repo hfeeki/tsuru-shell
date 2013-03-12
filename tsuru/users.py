@@ -7,9 +7,8 @@ import json
 import requests
 import getpass
 
-from configs import TOKEN_FN
-from utils import login_required
-from configdb import cfgdb
+from libs.utils import login_required
+from libs.configdb import cfgdb
 
 
 class AuthManager(object):
@@ -51,10 +50,10 @@ class AuthManager(object):
             headers = self.auhd            
         )
         if response.ok:
-            # TODO: remove local token record
-            fn = TOKEN_FN
-            if os.path.exists(fn):
-                os.remove(fn)
+            # remove local token record
+            x = cfgdb.get_default_user()
+            if x and x['email'] and x['token']:
+                cfgdb.remove_user(name=x['name'], email=x['email'], token=x['token'])
             print "Remove user successfully!" 
         else:
             print "Remove user failed!\nReason: %s" % (response.content)
@@ -81,9 +80,6 @@ class AuthManager(object):
             # write it to $HOME/.tsuru_token
             c = response.json()['token']
             cfgdb.add_user(name, email, c, True)
-            #fn = TOKEN_FN
-            #with open(fn, 'w') as f:
-            #    f.write(email + " " + c)
             print("Successfully logged in!")
         else:
             print("Failed to logged in!\nReason: %s" % response.content)
@@ -119,8 +115,6 @@ class AuthManager(object):
         data = {
             "name": name
         }
-        #tk = readToken(TOKEN_FN)
-        #auhd = {'Authorization': tk}
         response = requests.post(
             "{0}/teams".format(self.target),
             data=json.dumps(data),

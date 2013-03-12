@@ -18,10 +18,10 @@ import keys
 import envs
 import services
 
-from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
-from configdb import cfgdb
-from utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
-from icolor import cformat
+from common.configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
+from libs.configdb import cfgdb
+from libs.utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
+from libs.icolor import cformat
 
 '''
 $ python ishell.py t

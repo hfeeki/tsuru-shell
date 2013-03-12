@@ -1,10 +1,11 @@
 clean:
 	@find . -name "*.pyc" -delete
+	@rm -rf build dist tsuru.egg-info
 
 deps:
 	@pip install -r requirements.txt --use-mirrors
 
-test: deps clean
+test: clean
 	@nosetests -s . && flake8 .
 
 build: 

@@ -3,7 +3,7 @@
 import os
 import offtheshelf 
 from utils import Singleton
-from configs import DefaultDbName, DefaultTarget, WORK_HOME
+from common.configs import DefaultDbName, DefaultTarget, WORK_HOME
 
 
 class ConfigDb(object):

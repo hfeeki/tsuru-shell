@@ -6,7 +6,7 @@ import os
 import functools
 from functools import wraps
 import warnings
-from configs import IDENT, DefaultTarget, DefaultUser
+from common.configs import IDENT, DefaultTarget, DefaultUser
 
 
 def error(msg):
