@@ -26,8 +26,8 @@ with open('requirements.txt') as reqs:
 
 entry_points="""
 [console_scripts]
-tsuru = tsuru.ishell:main
-crane = crane.ishell:main    
+tsuru = itsuru:main
+crane = icrane:main    
 """            
 
 setup(

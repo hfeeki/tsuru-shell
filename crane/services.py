@@ -6,8 +6,8 @@ import os
 import string
 import json
 import requests
-from utils import login_required, readkey
-from configs import KEY_FN
+from libs.utils import login_required, readkey
+from common.configs import KEY_FN
 
 class ServiceManager(object):
 
@@ -17,7 +17,26 @@ class ServiceManager(object):
     def _guessAppName(self):
         return None
 
-    @login_required
+    def create(self, fn):
+        '''Creates a service based on a passed manifest. 
+        The manifest format should be a yaml and follow the 
+        standard described in the documentation 
+
+        Usage:
+            create path/to/manifesto
+        '''
+        with open(fn) as f:
+            body = f.read()
+        response = requests.post(
+            "{0}/services".format(self.target),
+            data=body
+        )
+        if response.ok:
+            pass
+        else:
+            pass
+
+
     def list(self):
         '''Get all available services, and user's instances for this services
         '''

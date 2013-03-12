@@ -8,19 +8,20 @@
 ## 
 ## Copyright (c) 2013, Michael
 
+
 import os
 import sys
-import cmdln
+from libs import cmdln
 
-import apps   
-import users
-import keys
-import envs
-import services
+from tsuru import apps   
+from tsuru import users
+from tsuru import keys
+from tsuru import envs
+from tsuru import services
 
 from common.configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
 from libs.configdb import cfgdb
-from libs.utils import minargs_required, getTarget, getCurrentUser, isLoggedIn
+from libs.utils import minargs_required, getCurrentUser, isLoggedIn
 from libs.icolor import cformat
 
 '''
@@ -68,7 +69,7 @@ class ITsuru(cmdln.Cmdln):
         if isLoggedIn():
             prompt = cformat("#GREEN;[%s@%s]tsuru> " % (u, netloc))
         else:
-            prompt = cformat("#GREEN;[%s]tsuru> " % (u))
+            prompt = cformat("#GREEN;[@%s]tsuru> " % (netloc))
         return prompt
 
     def postcmd(self, argv):

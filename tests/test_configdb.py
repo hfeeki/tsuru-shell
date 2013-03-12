@@ -1,4 +1,6 @@
 
+import sys
+sys.path.append("..")
 
 import os
 from nose.tools import ok_, eq_, istest, nottest, assert_equal

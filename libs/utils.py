@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 
-
 import os
 import functools
 from functools import wraps
 import warnings
+from common.configs import KEY_FN
 from common.configs import IDENT, DefaultTarget, DefaultUser
 
 
@@ -22,6 +22,25 @@ def readToken():
         return x['token']
     else:
         return None
+
+def readkey(fn=KEY_FN):
+    with open(fn) as f:
+        f.read().strip()
+        return k
+
+def getCurrentUser():
+    from configdb import cfgdb
+    x = cfgdb.get_default_user()
+    if x and x['name']:
+        return x['name']
+    return ""
+
+def isLoggedIn():
+    x = readToken()
+    if x :
+        return True
+    else:
+        return False
 
 def login_required(func):
     @wraps(func)

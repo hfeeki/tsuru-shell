@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import offtheshelf 
+from libs import offtheshelf 
 from utils import Singleton
 from common.configs import DefaultDbName, DefaultTarget, WORK_HOME
 
