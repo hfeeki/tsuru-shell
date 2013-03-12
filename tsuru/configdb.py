@@ -2,7 +2,7 @@
 
 import os
 import offtheshelf 
-from utils import Singleton
+from libs.utils import Singleton
 from configs import DefaultDbName, DefaultTarget, WORK_HOME
 
 

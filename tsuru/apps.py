@@ -3,7 +3,7 @@
 
 import json
 import requests
-from utils import login_required
+from libs.utils import login_required
 
 class AppManager(object):
     """
