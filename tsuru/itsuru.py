@@ -11,18 +11,18 @@
 
 import os
 import sys
-from libs import cmdln
+from tsuru.libs import cmdln
 
-from cmds import apps   
-from cmds import users
-from cmds import keys
-from cmds import envs
-from cmds import services
+from tsuru.cmds import apps   
+from tsuru.cmds import users
+from tsuru.cmds import keys
+from tsuru.cmds import envs
+from tsuru.cmds import services
 
-from configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
-from configdb import cfgdb
-from utils import minargs_required, getCurrentUser, isLoggedIn
-from libs.icolor import cformat
+from tsuru.configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
+from tsuru.configdb import cfgdb
+from tsuru.utils import minargs_required, getCurrentUser, isLoggedIn
+from tsuru.libs.icolor import cformat
 
 '''
 $ python ishell.py t

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import os
-from libs import offtheshelf 
-from utils import Singleton
-from configs import DefaultDbName, DefaultTarget, WORK_HOME
+from tsuru.libs import offtheshelf 
+from tsuru.utils import Singleton
+from tsuru.configs import DefaultDbName, DefaultTarget, WORK_HOME
 
 
 class ConfigDb(object):

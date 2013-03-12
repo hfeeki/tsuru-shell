@@ -9,8 +9,8 @@ import json
 import requests
 import getpass
 
-from utils import login_required
-from configdb import cfgdb
+from tsuru.utils import login_required
+from tsuru.configdb import cfgdb
 
 
 class AuthManager(object):

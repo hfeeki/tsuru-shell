@@ -17,5 +17,5 @@ egg:
 bdist:
 	@python setup.py bdist
 
-install: test build
+install: clean build
 	@python setup.py install

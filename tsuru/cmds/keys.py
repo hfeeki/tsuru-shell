@@ -4,8 +4,8 @@
 import os
 import json
 import requests
-from utils import login_required, readkey
-from configs import KEY_FN
+from tsuru.utils import login_required, readkey
+from tsuru.configs import KEY_FN
 
 class KeyManager(object):
 

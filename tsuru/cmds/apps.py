@@ -6,7 +6,7 @@ sys.path.append("..")
 
 import json
 import requests
-from utils import login_required, error
+from tsuru.utils import login_required, error
 
 class AppManager(object):
     """

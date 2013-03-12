@@ -5,8 +5,8 @@ import os
 import functools
 from functools import wraps
 import warnings
-from configs import KEY_FN
-from configs import IDENT, DefaultTarget, DefaultUser
+from tsuru.configs import KEY_FN
+from tsuru.configs import IDENT, DefaultTarget, DefaultUser
 
 
 def error(msg):
@@ -16,7 +16,7 @@ def error(msg):
     print("\n")
 
 def readToken():
-    from configdb import cfgdb
+    from tsuru.configdb import cfgdb
     x = cfgdb.get_default_user()
     if x and x['token']:
         return x['token']
@@ -29,7 +29,7 @@ def readkey(fn=KEY_FN):
         return k
 
 def getCurrentUser():
-    from configdb import cfgdb
+    from tsuru.configdb import cfgdb
     x = cfgdb.get_default_user()
     if x and x['name']:
         return x['name']
