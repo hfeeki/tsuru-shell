@@ -91,7 +91,11 @@ class AppManager(object):
         """
         Add a new unit to an app.
         """
-        response = requests.put("{0}/apps/{1}/units".format(self.target, appname), data=str(numunits))
+        response = requests.put(
+            "{0}/apps/{1}/units".format(self.target, appname), 
+            data=str(numunits),
+            headers = self.auhd
+        )
         if response.ok:
             print("Successfully add units to an app.")
         else:
@@ -104,18 +108,17 @@ class AppManager(object):
         """
         Remove units from an app.
         """
-        response = requests.delete("{0}/apps/{1}/units".format(self.target, appname), data=str(numunits))
+        response = requests.delete(
+            "{0}/apps/{1}/units".format(self.target, appname), 
+            data=str(numunits),
+            headers = self.auhd
+        )
         if response.ok:
             print("Successfully remove units from an app.")
         else:
             print("Failed to remove units from an app.\nReason: %s" % (response.content))
         return response.content
 
-    @login_required
-    @ExpHandler((ConnectionError, Exception))
-    def envget(self):
-        '''Retrieve environment variables for an app. If you don't provide the app name, tsuru will try to guess it.\n
-        '''
-        error("Not implemented!")
+    
         
 

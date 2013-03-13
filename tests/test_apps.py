@@ -13,6 +13,9 @@ DBNAME = os.path.join(os.path.dirname(__file__), "temp", "test.db")
 
 ELoginFirst = 'Please login first!'
 IRemoveApp = "Successfully remove an app."
+ICreateApp = "Successfully created an app."
+IAddUnit = "Successfully add units to an app."
+IRemoveUnit = "Successfully remove units from an app."
 
 TestAuthHeader = {'Authorization': 'token'}
 
@@ -85,21 +88,74 @@ class TestAppsTestCase(unittest.TestCase):
         out, err = capture.reset()        
         delete.not_called()
         self.assertEquals(out.strip(), ELoginFirst)
-
-    '''
-    @mock.patch("requests.get")
-    def test_get_app(self, get):
-        cl = client.Client("target")
-        cl.apps.get("appname")
-        get.assert_called_with("target/apps/appname")
+    
+    @mock.patch("requests.post")
+    def test_CreateAppWithLogin(self, post):
+        self.loggedin()
+        am = AppManager("target", self.dbn)
+        data = {
+            "name": "myapp",
+            "framework": "python2.7",
+            "units": 5
+        }
+        b = json.dumps(data)
+        capture = py.io.StdCaptureFD(in_=False)
+        am.create("myapp", "python2.7", 5)
+        out, err = capture.reset()
+        post.assert_called_with("target/apps", data=b, headers=TestAuthHeader)
+        self.assertEquals(out.strip(), ICreateApp)
 
     @mock.patch("requests.post")
-    def test_create_app(self, post):
-        cl = client.Client("target")
+    def test_CreateAppWithoutLogin(self, post):
+        am = AppManager("target", self.dbn)
         data = {
-            "name": "appname",
-            "framework": "framework",
+            "name": "myapp",
+            "framework": "python2.7",
+            "units": 5
         }
-        cl.apps.create(**data)
-        post.assert_called_with("target/apps", data=json.dumps(data))
-    '''
+        b = json.dumps(data)
+        capture = py.io.StdCaptureFD(in_=False)
+        am.create("myapp", "python2.7", 5)
+        out, err = capture.reset()
+        post.not_called()
+        self.assertEquals(out.strip(), ELoginFirst)
+
+    @mock.patch("requests.put")
+    def test_AddUnitWithLogin(self, put):
+        self.loggedin()
+        am = AppManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
+        am.unitadd("myapp", 5)
+        out, err = capture.reset()
+        put.assert_called_with("target/apps/myapp/units", data=str(5), headers=TestAuthHeader)
+        self.assertEquals(out.strip(), IAddUnit)    
+
+    @mock.patch("requests.put")
+    def test_AddUnitWithoutLogin(self, put):
+        am = AppManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
+        am.unitadd("myapp", 5)
+        out, err = capture.reset()
+        put.not_called()
+        self.assertEquals(out.strip(), ELoginFirst)
+
+    @mock.patch("requests.delete")
+    def test_RemoveUnitWithLogin(self, delete):
+        self.loggedin()
+        am = AppManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
+        am.unitremove("myapp", 5)
+        out, err = capture.reset()
+        delete.assert_called_with("target/apps/myapp/units", data=str(5), headers=TestAuthHeader)
+        self.assertEquals(out.strip(), IRemoveUnit)    
+
+    @mock.patch("requests.delete")
+    def test_AddUnitWithoutLogin(self, delete):
+        am = AppManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
+        am.unitremove("myapp", 5)
+        out, err = capture.reset()
+        delete.not_called()
+        self.assertEquals(out.strip(), ELoginFirst)
+
+    
