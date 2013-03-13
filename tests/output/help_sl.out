@@ -1,0 +1,4 @@
+Get all available services, and user's instances for this services.
+
+Usage:
+    service_list

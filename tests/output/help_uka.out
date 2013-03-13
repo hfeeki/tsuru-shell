@@ -1,0 +1,4 @@
+Add your public keys ($HOME/.ssh/tsuru_id_rsa.pub by default).
+
+Usage:
+    user_add_key [path/to/keys/file.pub]

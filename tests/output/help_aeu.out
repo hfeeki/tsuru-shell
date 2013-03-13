@@ -1,0 +1,4 @@
+Unset environment variables for an app.
+
+Usage:
+    app_env_unset <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>

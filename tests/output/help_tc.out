@@ -1,0 +1,4 @@
+Creates a new team.
+
+Usage:
+    team_create <name>

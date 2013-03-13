@@ -1,0 +1,4 @@
+Remove your public key ($HOME/.ssh/tsuru_id_rsa.pub by default).
+
+Usage:
+    user_key_remove [path/to/key/file.pub]

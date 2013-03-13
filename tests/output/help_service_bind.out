@@ -1,0 +1,4 @@
+Bind a service instance to an app.
+
+Usage:
+    service_bind <instancename> <appname>

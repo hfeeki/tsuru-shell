@@ -1,0 +1,4 @@
+Set a named target as the only default.
+
+Usage:
+    target_default_set <name>

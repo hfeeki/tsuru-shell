@@ -1,0 +1,9 @@
+Create a service instance to one or more apps make use of.
+
+Usage:
+    service-add <servicename> <instancename>
+
+    e.g.:
+        $ tsuru service_add mongodb tsuru_mongodb
+
+    Will add a new instance of the "mongodb" service, named "tsuru_mongodb".

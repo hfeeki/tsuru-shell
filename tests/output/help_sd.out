@@ -1,0 +1,4 @@
+Show documentation of a service.
+
+Usage:
+    service_doc <servicename>

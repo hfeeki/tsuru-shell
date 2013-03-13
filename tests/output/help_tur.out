@@ -1,0 +1,4 @@
+Removes a user from a team.
+
+Usage:
+    team_user_remove <teamname> <useremail>

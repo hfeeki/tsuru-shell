@@ -1,0 +1,7 @@
+Remove a named target.
+
+Usage:
+    target_remove <name>
+
+Note:
+    You can provide name or url or both of them. If both provided, only url will be used.

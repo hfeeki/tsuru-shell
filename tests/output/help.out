@@ -1,0 +1,48 @@
+Usage:
+    tsuru COMMAND [ARGS...]
+    tsuru help [COMMAND]
+
+Options:
+    -h, --help  show this help message and exit
+
+Commands:
+    app_create (ac)               Create an app.
+    app_env_get (aeg)             Retrieve environment variables for an app.
+    app_env_set (aes)             Set environment variables for an app.
+    app_env_unset (aeu)           Unset environment variables for an app.
+    app_info (ai)                 Show information about your app.
+    app_list (al)                 Get a list of all apps.
+    app_remove (ar)               Remove an app.
+    app_unit_add (aua)            Add a new unit to an app.
+    app_unit_remove (aur)         Remove units from an app.
+    change_password (cp)          Change your password.
+    exit (q, quit, x)             Exit/Quit the interactive shell
+    help (?)                      give detailed help on a specific sub-command
+    login (lgi)                   Login to server.
+    logout (lgo)                  Clear local authentication credentials.
+    service_add (sa)              Create a service instance to one or more ...
+    service_bind (sb)             Bind a service instance to an app.
+    service_doc (sd)              Show documentation of a service.
+    service_info (si)             List all instances of a service.
+    service_list (sl)             Get all available services, and user's in...
+    service_status (ss, sst)      Check status of a given service instance.
+    service_unbind (sub)          Unbind a service instance from an app.
+    shell (!, sh)                 Pass command to a system shell when line ...
+    status (s, st)                Display current login state.
+    target_add (ta)               Add a new named target.
+    target_default_get (dt, tdg)  Get the default target.
+    target_default_set (tds)      Set a named target as the only default.
+    target_get (t, target)        Get or set target.
+    target_remove (tr)            Remove a named target.
+    team_create (tc)              Creates a new team.
+    team_list (tl)                List all teams that you are member.
+    team_remove                   Removes a team from tsuru server.
+    team_user_add (tua)           Adds a user to a team.
+    team_user_remove (tur)        Removes a user from a team.
+    user_create (uc)              Creates a user.
+    user_current (cu)             Show current user.
+    user_key_add (uka)            Add your public keys ($HOME/.ssh/tsuru_id...
+    user_key_remove (ukr)         Remove your public key ($HOME/.ssh/tsuru_...
+    user_list (ul)                List local users.
+    user_remove (ur)              Removes your user from server.
+    welcome (w, wel)              Show the welcome banner.

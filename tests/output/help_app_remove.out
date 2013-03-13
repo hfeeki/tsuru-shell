@@ -1,0 +1,4 @@
+Remove an app.
+
+Usage:
+    app_remove <appname>

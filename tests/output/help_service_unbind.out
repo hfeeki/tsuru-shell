@@ -1,0 +1,4 @@
+Unbind a service instance from an app.
+
+Usage:
+    service_unbind <instancename> <appname>

@@ -1,0 +1,4 @@
+Clear local authentication credentials.
+
+Usage:
+    logout

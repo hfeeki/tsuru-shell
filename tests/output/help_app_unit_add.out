@@ -1,0 +1,4 @@
+Add a new unit to an app.
+
+Usage:
+    app_unit_add <appname> [numunits=1]

@@ -1,0 +1,4 @@
+Adds a user to a team.
+
+Usage:
+    team_user_add <teamname> <useremail>

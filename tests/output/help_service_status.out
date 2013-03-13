@@ -1,0 +1,4 @@
+Check status of a given service instance.
+
+Usage:
+    service_status <instancename>

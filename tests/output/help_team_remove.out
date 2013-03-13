@@ -1,0 +1,4 @@
+Removes a team from tsuru server.
+
+Usage:
+    team_remove <name>

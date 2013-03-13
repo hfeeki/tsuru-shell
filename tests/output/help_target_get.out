@@ -1,0 +1,6 @@
+Get or set target.
+
+Usage:
+    target
+    or
+    target_get

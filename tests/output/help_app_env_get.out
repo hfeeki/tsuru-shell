@@ -1,0 +1,4 @@
+Retrieve environment variables for an app.
+
+Usage:
+    app_env_get <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>

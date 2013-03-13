@@ -1,0 +1,4 @@
+List all instances of a service.
+
+Usage:
+    service_info <servicename>

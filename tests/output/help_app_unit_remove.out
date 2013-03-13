@@ -1,0 +1,4 @@
+Remove units from an app.
+
+Usage:
+    app_unit_remove <appname> [numunits=1]

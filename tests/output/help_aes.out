@@ -1,0 +1,4 @@
+Set environment variables for an app.
+
+Usage:
+    app_env_set <--app appname> <--vars NAME=value [NAME=value] ...>

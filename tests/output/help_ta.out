@@ -1,0 +1,8 @@
+Add a new named target.
+
+Usage:
+    target_add <name> <url> [-d]
+
+Options:
+    -h, --help     show this help message and exit
+    -d, --default

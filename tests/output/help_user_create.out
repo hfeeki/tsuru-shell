@@ -1,0 +1,4 @@
+Creates a user.
+
+Usage:
+    user_create <username> <email>

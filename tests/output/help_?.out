@@ -1,0 +1,4 @@
+help (?): give detailed help on a specific sub-command
+
+Usage:
+    tsuru help [COMMAND]
