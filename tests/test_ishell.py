@@ -1,7 +1,7 @@
 
 from nose.tools import ok_, eq_
 import json
-import mock
+from tsuru.libs import mock
 import unittest
 
 

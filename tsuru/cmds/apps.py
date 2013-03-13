@@ -61,7 +61,7 @@ class AppManager(object):
             print("Successfully remove an app.")
         else:
             print("Failed to remove an app.\nReason: %s" % (response.content))
-        return response.content
+        return 
 
     @login_required
     @ExpHandler((ConnectionError, Exception))

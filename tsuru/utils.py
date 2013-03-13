@@ -12,8 +12,9 @@ from tsuru.libs import offtheshelf
 
 def error(msg):
     from clint.textui import colored, puts, indent
-    with indent(4, quote=colored.red('error> ')):
-        puts(colored.red(msg))
+    #with indent(4, quote=colored.red('error> ')):
+    #with indent(4): # indent puts will cause py.test py.io.StdCaptureFD failed
+    print(colored.red(msg))
     print("\n")
 
 def readToken(dbn):
