@@ -6,7 +6,8 @@ import functools
 from functools import wraps
 import warnings
 from tsuru.configs import KEY_FN
-from tsuru.configs import IDENT, DefaultTarget, DefaultUser
+from tsuru.configs import IDENT, DefaultTarget, DefaultUser, DefaultDbName
+from tsuru.libs import offtheshelf
 
 
 def error(msg):
@@ -15,13 +16,14 @@ def error(msg):
         puts(colored.red(msg))
     print("\n")
 
-def readToken():
-    from tsuru.configdb import cfgdb
-    x = cfgdb.get_default_user()
-    if x and x['token']:
-        return x['token']
-    else:
-        return None
+def readToken(dbn):
+    with offtheshelf.openDB(dbn) as db:
+        coll = db.get_collection("users")
+        x = coll.find({'default': True})
+        if x and len(x) > 0 and x[0]['token']:
+            return x[0]['token']
+        else:
+            return None
 
 def readkey(fn=KEY_FN):
     with open(fn) as f:
@@ -35,17 +37,20 @@ def getCurrentUser():
         return x['name']
     return ""
 
-def isLoggedIn():
-    x = readToken()
+def isLoggedIn(dbn):
+    x = readToken(dbn)
     if x :
         return True
     else:
         return False
 
 def login_required(func):
+    '''Check login state. 
+    '''
     @wraps(func)
     def check_login(self, *args, **kw):
-        x = readToken()
+        #print self.dbn
+        x = readToken(self.dbn)
         if not x :
             error("Please login first!")
             return 
@@ -201,9 +206,9 @@ def ExpHandler(*posargs):
                 handler(e)
             else:
                 print e.__class__.__name__,':',e                
-        
-    @wraps(f)
+            
     def wrapper(f):
+        @wraps(f)
         def newfunc(*pargs, **kwargs):
             if len(posargs)<2:
                 t = tuple(item for item in posargs[0] if issubclass(item,Exception) or (Exception,))

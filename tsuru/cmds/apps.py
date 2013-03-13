@@ -1,22 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-sys.path.append("..")
-
 import json
 import requests
-from tsuru.utils import login_required, error
+from requests.exceptions import ConnectionError
+from tsuru.utils import error, login_required, ExpHandler
+
+def myhandler(e):
+    print 'Caught exception!', e
 
 class AppManager(object):
     """
     Manage App resources.
     """
 
-    def __init__(self, target):
+    def __init__(self, target, dbn):
         self.target = target
+        self.dbn = dbn  # must set it, login_required will use it
 
     @login_required
+    @ExpHandler((ConnectionError, Exception))
     def list(self):
         """
         Get a list of all apps.
@@ -28,6 +31,7 @@ class AppManager(object):
         return response.content
 
     @login_required
+    @ExpHandler((ConnectionError, Exception))
     def get(self, appname):
         """
         show information about your app.
@@ -44,6 +48,7 @@ class AppManager(object):
         return response.content
 
     @login_required
+    @ExpHandler((ConnectionError, Exception))
     def remove(self, appname):
         """
         Remove an app.
@@ -59,6 +64,7 @@ class AppManager(object):
         return response.content
 
     @login_required
+    @ExpHandler((ConnectionError, Exception))
     def create(self, name, framework, numunits=1):
         """
         Create an app.
@@ -80,6 +86,7 @@ class AppManager(object):
         return response.content
 
     @login_required
+    @ExpHandler((ConnectionError, Exception))
     def unitadd(self, appname, numunits=1):
         """
         Add a new unit to an app.
@@ -92,6 +99,7 @@ class AppManager(object):
         return response.content
 
     @login_required
+    @ExpHandler((ConnectionError, Exception))
     def unitremove(self, appname, numunits=1):
         """
         Remove units from an app.
@@ -104,6 +112,7 @@ class AppManager(object):
         return response.content
 
     @login_required
+    @ExpHandler((ConnectionError, Exception))
     def envget(self):
         '''Retrieve environment variables for an app. If you don't provide the app name, tsuru will try to guess it.\n
         '''

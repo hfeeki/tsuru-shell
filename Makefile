@@ -1,6 +1,7 @@
 clean:
 	@find . -name "*.pyc" -delete
 	@rm -rf build dist tsuru.egg-info
+	@rm -rf .venv/lib/python2.7/site-packages/tsuru*
 
 deps:
 	@pip install -r requirements.txt --use-mirrors

@@ -15,8 +15,9 @@ from tsuru.configdb import cfgdb
 
 class AuthManager(object):
 
-    def __init__(self, target):
-        self.target = target    
+    def __init__(self, target, dbn):
+        self.target = target
+        self.dbn = dbn  # must set it, login_required will use it
 
     def createUser(self, username, email):        
         password = getpass.getpass("Please input your password: ")

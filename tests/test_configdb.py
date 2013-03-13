@@ -1,21 +1,21 @@
-
-import sys
-sys.path.append("..")
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 
 import os
+from tsuru.libs import nose, mock
 from nose.tools import ok_, eq_, istest, nottest, assert_equal
 from nose.tools import assert_not_equal, assert_raises
-import mock
 import unittest
 from tsuru.libs import offtheshelf
 from tsuru.configdb import ConfigDb
 from tsuru.configs import DefaultTarget
 
+DBNAME = os.path.join(os.path.dirname(__file__), "temp", "test.db")
 
 class ConfigDbTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.dbn = "./temp/test.db"
+        self.dbn = DBNAME
         self.cfgdb = ConfigDb(self.dbn)
 
     def tearDown(self):        
@@ -89,8 +89,7 @@ class ConfigDbTestCase(unittest.TestCase):
         assert_equal(1, "Not Implemented")
 
 
-if __name__ == '__main__':
-    unittest.main()    
+
 
 
 

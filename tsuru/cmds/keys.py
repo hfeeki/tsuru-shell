@@ -9,8 +9,9 @@ from tsuru.configs import KEY_FN
 
 class KeyManager(object):
 
-    def __init__(self, target):
-        self.target = target        
+    def __init__(self, target, dbn):
+        self.target = target
+        self.dbn = dbn  # must set it, login_required will use it
 
     @login_required
     def remove(self, fn=KEY_FN):

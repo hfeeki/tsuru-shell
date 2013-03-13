@@ -13,8 +13,9 @@ from tsuru.configs import KEY_FN
 
 class EnvManager(object):
 
-    def __init__(self, target):
-        self.target = target  
+    def __init__(self, target, dbn):
+        self.target = target
+        self.dbn = dbn  # must set it, login_required will use it
 
     def _guessAppName(self):
         return None

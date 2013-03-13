@@ -11,7 +11,6 @@
 
 import os
 import sys
-from tsuru.libs import cmdln
 
 from tsuru.cmds import apps   
 from tsuru.cmds import users
@@ -20,9 +19,11 @@ from tsuru.cmds import envs
 from tsuru.cmds import services
 
 from tsuru.configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
+from tsuru.configs import DefaultDbName
 from tsuru.configdb import cfgdb
 from tsuru.utils import minargs_required, getCurrentUser, isLoggedIn
 from tsuru.libs.icolor import cformat
+from tsuru.libs import cmdln
 
 '''
 $ python ishell.py t
@@ -34,9 +35,10 @@ class ITsuru(cmdln.Cmdln):
     name = "tsuru"
     #prompt = "tsuru> "
 
-    def __init__(self):
+    def __init__(self, dbn=DefaultDbName):
         cmdln.Cmdln.__init__(self)
         dt = cfgdb.get_default_target()
+        self.dbn = dbn
         self.target_name = dt['name']
         self.target = dt['url']
         self.prompt = self._getPrompt()
@@ -57,7 +59,7 @@ class ITsuru(cmdln.Cmdln):
         netloc = urlparse.urlparse(t).netloc
         u = getCurrentUser()
         prompt = self.prompt
-        if isLoggedIn():
+        if isLoggedIn(self.dbn):
             prompt = cformat("#GREEN;[%s@%s]tsuru> " % (u, netloc))
         else:
             prompt = cformat("#GREEN;[@%s]tsuru> " % (netloc))
@@ -172,7 +174,7 @@ class ITsuru(cmdln.Cmdln):
         # check email is valid
         # create a user with email
         user, email = args[0], args[1]
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.createUser(user, email)
 
     @cmdln.alias("ur")
@@ -182,7 +184,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             user_remove 
         '''
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.removeUser()
 
     @cmdln.alias("lgi")
@@ -196,7 +198,7 @@ class ITsuru(cmdln.Cmdln):
         ${cmd_option_list}
         ''' 
         name, email = args[0], args[1]
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.login(name, email)
         # TODO: change the prompt
         return 
@@ -210,7 +212,7 @@ class ITsuru(cmdln.Cmdln):
 
         ${cmd_option_list}
         '''
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.logout()
         # TODO: change the prompt
         self.prompt = self._getPrompt()
@@ -223,7 +225,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             change_password
         '''
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.changePassword()
 
     @cmdln.alias("st", "s")
@@ -233,14 +235,14 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             status 
         """
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.status()
 
     @cmdln.alias("cu")
     def do_user_current(self, subcmd, opts, *args):
         """Show current user.
         """
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.getCurrentUser()        
 
     @cmdln.alias("uka")
@@ -251,7 +253,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             user_add_key [path/to/keys/file.pub]
         '''
-        km = keys.KeyManager(self.target)
+        km = keys.KeyManager(self.target, self.dbn)
         if len(args) > 0:
             fn = args[0]            
             km.add(fn)
@@ -266,7 +268,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             user_key_remove [path/to/key/file.pub]
         '''
-        km = keys.KeyManager(self.target)
+        km = keys.KeyManager(self.target, self.dbn)
         if len(args) > 0:
             fn = args[0]            
             km.remove(fn)
@@ -284,7 +286,7 @@ class ITsuru(cmdln.Cmdln):
             team_create <name>
         '''
         name = args[0]
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.createTeam(name)        
 
     @cmdln.alias("tr")
@@ -296,7 +298,7 @@ class ITsuru(cmdln.Cmdln):
             team_remove <name>
         '''
         name = args[0]
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.removeTeam(name)
 
     @cmdln.alias("tua")
@@ -309,7 +311,7 @@ class ITsuru(cmdln.Cmdln):
         '''
         x = args
         tname, uname = x[0], x[1]
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.addTeamUser(tname, uname)
 
     @cmdln.alias("tur")
@@ -322,7 +324,7 @@ class ITsuru(cmdln.Cmdln):
         '''
         x = args
         tname, uname = x[0], x[1]
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.removeTeamUser(tname, uname)
 
     @cmdln.alias("tl")
@@ -332,19 +334,19 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             team_list
         '''
-        am = users.AuthManager(self.target)
+        am = users.AuthManager(self.target, self.dbn)
         am.listTeam()
 
     ################## App commands ####################
 
-    @cmdln.alias("al")
+    @cmdln.alias("al")    
     def do_app_list(self, subcmd, opts, *args):
         '''Get a list of all apps.
 
         Usage: 
             app_list
         '''
-        apm = apps.AppManager(self.target)
+        apm = apps.AppManager(self.target, self.dbn)
         apm.list()
 
     @cmdln.alias("ac")
@@ -359,7 +361,7 @@ class ITsuru(cmdln.Cmdln):
         #if args is not None:
         x = args 
         name, framework = x[0], x[1]
-        apm = apps.AppManager(self.target)
+        apm = apps.AppManager(self.target, self.dbn)
         apm.create(name, framework)
 
     @cmdln.alias("ai")
@@ -371,7 +373,7 @@ class ITsuru(cmdln.Cmdln):
             app_info <appname>
         """
         name = args[0]
-        apm = apps.AppManager(self.target)
+        apm = apps.AppManager(self.target, self.dbn)
         apm.get(name)
 
     @cmdln.alias("ar")
@@ -383,7 +385,7 @@ class ITsuru(cmdln.Cmdln):
             app_remove <appname>
         """
         name = args[0]
-        apm = apps.AppManager(self.target)
+        apm = apps.AppManager(self.target, self.dbn)
         apm.remove(name)
 
     @cmdln.alias("aua")
@@ -399,7 +401,7 @@ class ITsuru(cmdln.Cmdln):
             numunits = args[1]
         else:
             numunits = 1
-        apm = apps.AppManager(self.target)
+        apm = apps.AppManager(self.target, self.dbn)
         apm.unitadd(aname, numunits)
 
     @cmdln.alias("aur")
@@ -415,7 +417,7 @@ class ITsuru(cmdln.Cmdln):
             numunits = args[1]
         else:
             numunits = 1
-        apm = apps.AppManager(self.target)
+        apm = apps.AppManager(self.target, self.dbn)
         apm.unitremove(aname, numunits)
 
     @cmdln.alias("aes")
@@ -427,7 +429,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             app_env_set <--app appname> <--vars NAME=value [NAME=value] ...>  
         """        
-        em = envs.EnvManager(self.target)
+        em = envs.EnvManager(self.target, self.dbn)
         em.set(opts.app, opts.vars)
 
     @cmdln.alias("aeg")
@@ -439,7 +441,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             app_env_get <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
-        em = envs.EnvManager(self.target)
+        em = envs.EnvManager(self.target, self.dbn)
         em.get(opts.app, options.vars)   
 
     @cmdln.alias("aeu")
@@ -451,7 +453,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             app_env_unset <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
-        em = envs.EnvManager(self.target)
+        em = envs.EnvManager(self.target, self.dbn)
         em.unset(opts.app, options.vars)   
 
     #################### Service commands ####################
@@ -469,7 +471,7 @@ class ITsuru(cmdln.Cmdln):
 
             Will add a new instance of the "mongodb" service, named "tsuru_mongodb".
         '''
-        sm = services.ServiceManager(self.target)
+        sm = services.ServiceManager(self.target, self.dbn)
         svcname, instname = args[0], args[1]
         sm.add(svcname, instname)
 
@@ -480,7 +482,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             service_list 
         '''
-        sm = services.ServiceManager(self.target)
+        sm = services.ServiceManager(self.target, self.dbn)
         sm.list()
 
     @cmdln.alias("sb")
@@ -491,7 +493,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             service_bind <instancename> <appname>
         '''
-        sm = services.ServiceManager(self.target)
+        sm = services.ServiceManager(self.target, self.dbn)
         instname, appname = args[0], args[1]
         sm.bind(instname, appname)
 
@@ -503,7 +505,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             service_unbind <instancename> <appname>
         '''
-        sm = services.ServiceManager(self.target)
+        sm = services.ServiceManager(self.target, self.dbn)
         instname, appname = args[0], args[1]
         sm.unbind(instname, appname)
 
@@ -515,7 +517,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             service_status <instancename>
         '''
-        sm = services.ServiceManager(self.target)
+        sm = services.ServiceManager(self.target, self.dbn)
         instname = args[0]
         sm.status(instname)
 
@@ -527,7 +529,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             service_info <servicename>
         '''
-        sm = services.ServiceManager(self.target)
+        sm = services.ServiceManager(self.target, self.dbn)
         svcname = args[0]
         sm.info(svcname)
 
@@ -539,7 +541,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             service_doc <servicename>
         '''
-        sm = services.ServiceManager(self.target)
+        sm = services.ServiceManager(self.target, self.dbn)
         svcname = args[0]
         sm.doc(svcname)
 
