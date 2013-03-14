@@ -6,8 +6,11 @@ clean:
 deps:
 	@pip install -r requirements.txt --use-mirrors
 
-test: clean
-	@nosetests -s . && flake8 .
+develop:
+	@python setup.py develop
+
+test: clean develop
+	@python setup.py test
 
 build: 
 	@python setup.py build

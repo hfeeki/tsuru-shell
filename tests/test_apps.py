@@ -2,8 +2,7 @@
 import json
 from nose.tools import with_setup, eq_
 import unittest
-import pytest
-from tsuru.libs import mock
+import mock
 from tsuru.configdb import ConfigDb
 from tsuru.cmds.apps import AppManager
 import os, sys
@@ -18,6 +17,7 @@ IAddUnit = "Successfully add units to an app."
 IRemoveUnit = "Successfully remove units from an app."
 
 TestAuthHeader = {'Authorization': 'token'}
+
 
 # with_setup can not works for unittest.TestCase
 class TestAppsTestCase(unittest.TestCase):
@@ -47,23 +47,23 @@ class TestAppsTestCase(unittest.TestCase):
 
     @mock.patch("requests.get")
     def test_ListAppsWithoutLogin(self, get):
-        am = AppManager("target", self.dbn) 
-        capture = py.io.StdCaptureFD(in_=False)       
+        am = AppManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
         am.list()
         out, err = capture.reset()
-        get.not_called() 
+        get.not_called()
         self.assertEquals(out.strip(), ELoginFirst)
 
     @mock.patch("requests.get")
     def test_GetAppWithLogin(self, get):
         self.loggedin()
-        am = AppManager("target", self.dbn)        
+        am = AppManager("target", self.dbn)
         am.get("myapp")
         get.assert_called_with("target/apps/myapp", headers=TestAuthHeader)
 
     @mock.patch("requests.get")
     def test_GetAppWithoutLogin(self, get):
-        am = AppManager("target", self.dbn)        
+        am = AppManager("target", self.dbn)
         capture = py.io.StdCaptureFD(in_=False)
         am.get("myapp")
         out, err = capture.reset()
@@ -85,10 +85,10 @@ class TestAppsTestCase(unittest.TestCase):
         am = AppManager("target", self.dbn)
         capture = py.io.StdCaptureFD(in_=False)
         am.remove("myapp")
-        out, err = capture.reset()        
+        out, err = capture.reset()
         delete.not_called()
         self.assertEquals(out.strip(), ELoginFirst)
-    
+
     @mock.patch("requests.post")
     def test_CreateAppWithLogin(self, post):
         self.loggedin()
@@ -128,7 +128,7 @@ class TestAppsTestCase(unittest.TestCase):
         am.unitadd("myapp", 5)
         out, err = capture.reset()
         put.assert_called_with("target/apps/myapp/units", data=str(5), headers=TestAuthHeader)
-        self.assertEquals(out.strip(), IAddUnit)    
+        self.assertEquals(out.strip(), IAddUnit)
 
     @mock.patch("requests.put")
     def test_AddUnitWithoutLogin(self, put):
@@ -147,14 +147,15 @@ class TestAppsTestCase(unittest.TestCase):
         am.unitremove("myapp", 5)
         out, err = capture.reset()
         delete.assert_called_with("target/apps/myapp/units", data=str(5), headers=TestAuthHeader)
-        self.assertEquals(out.strip(), IRemoveUnit)    
+        self.assertEquals(out.strip(), IRemoveUnit)
 
     @mock.patch("requests.delete")
-    def test_AddUnitWithoutLogin(self, delete):
+    def test_RemoveUnitWithoutLogin(self, delete):
         am = AppManager("target", self.dbn)
         capture = py.io.StdCaptureFD(in_=False)
         am.unitremove("myapp", 5)
         out, err = capture.reset()
+        #out, err = capsys.readouterr()
         delete.not_called()
         self.assertEquals(out.strip(), ELoginFirst)
 

@@ -35,7 +35,7 @@ class ITsuru(cmdln.Cmdln):
     name = "tsuru"
     #prompt = "tsuru> "
 
-    def __init__(self, dbn=DefaultDbName):
+    def __init__(self, dbn=DefaultDbName):        
         cmdln.Cmdln.__init__(self)
         dt = cfgdb.get_default_target()
         self.dbn = dbn
@@ -52,6 +52,7 @@ class ITsuru(cmdln.Cmdln):
    |                                                        |
    ----------------------------------------------------------
     Welcome! Current target is: %s - %s \n\n''' % (self.target_name, self.target)) ## defaults to None
+        os.system("clear")
 
     def _getPrompt(self):
         import urlparse        
@@ -72,6 +73,7 @@ class ITsuru(cmdln.Cmdln):
     def do_welcome(self, subcmd, opts, *args):
         '''Show the welcome banner.
         '''
+        os.system("clear")
         print(self.intro)
 
     @cmdln.alias("t", "target")
@@ -442,7 +444,7 @@ class ITsuru(cmdln.Cmdln):
             app_env_get <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
         em = envs.EnvManager(self.target, self.dbn)
-        em.get(opts.app, options.vars)   
+        em.get(opts.app, opts.vars)
 
     @cmdln.alias("aeu")
     @cmdln.option("-a", "--app", dest="app")
@@ -454,7 +456,7 @@ class ITsuru(cmdln.Cmdln):
             app_env_unset <--app appname> <--vars ENVIRONMENT_VARIABLE1 [ENVIRONMENT_VARIABLE2] ...>
         """        
         em = envs.EnvManager(self.target, self.dbn)
-        em.unset(opts.app, options.vars)   
+        em.unset(opts.app, opts.vars)
 
     #################### Service commands ####################
 

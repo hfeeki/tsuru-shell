@@ -42,3 +42,5 @@ nosetests.xml
 *.db
 *.db-journal
 *.lck
+.cache
+thirds

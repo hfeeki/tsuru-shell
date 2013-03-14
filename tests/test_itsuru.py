@@ -90,7 +90,7 @@ def generate_test_help_funcs(cmds):
     return rs
 
 need_tested_funcs = [
-    ("welcome.out", cmd_welcome),
+    #("welcome.out", cmd_welcome),
     
 ] + generate_test_help_funcs(TSRUR_CMDS) 
 
@@ -100,7 +100,7 @@ need_tested_funcs = [
 #])
 @pytest.mark.parametrize(("filename_expected", "function_to_test"), 
      need_tested_funcs)
-def test_funcoutput(capfd, filename_expected, function_to_test):
+def test_itsuru_funcoutput(capfd, filename_expected, function_to_test):
     function_to_test()
     resout, reserr = capfd.readouterr()
     fn = os.path.join(OUTPUT, filename_expected)

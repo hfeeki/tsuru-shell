@@ -492,6 +492,7 @@ class RawCmdln(cmd.Cmd):
         Usage:
             ${name} help [COMMAND]
         """
+        #os.system("clear")
         if len(argv) > 1: # asking for help on a particular command
             doc = None
             cmdname = self._get_canonical_cmd_name(argv[1]) or argv[1]
@@ -529,7 +530,7 @@ class RawCmdln(cmd.Cmd):
             doc = doc.rstrip() + '\n' # trim down trailing space
             self.stdout.write(self._str(doc))
             self.stdout.flush()
-    do_help.aliases = ["?"]
+    do_help.aliases = ["?", "h"]
 
     def _help_reindent(self, help, indent=None):
         """Hook to re-indent help strings before writing to stdout.
