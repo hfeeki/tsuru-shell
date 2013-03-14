@@ -7,14 +7,14 @@ import requests
 import getpass
 
 from tsuru.utils import login_required
-from tsuru.configdb import cfgdb
-
+from tsuru.configdb import MyConfigDb
 
 class AuthManager(object):
 
     def __init__(self, target, dbn):
         self.target = target
         self.dbn = dbn  # must set it, login_required will use it
+        self.cfgdb = MyConfigDb.Instance(dbn)
 
     def createUser(self, username, email):        
         password = getpass.getpass("Please input your password: ")
@@ -51,9 +51,9 @@ class AuthManager(object):
         )
         if response.ok:
             # remove local token record
-            x = cfgdb.get_default_user()
+            x = self.cfgdb.get_default_user()
             if x and x['email'] and x['token']:
-                cfgdb.remove_user(name=x['name'], email=x['email'], token=x['token'])
+                self.cfgdb.remove_user(name=x['name'], email=x['email'], token=x['token'])
             print "Remove user successfully!" 
         else:
             print "Remove user failed!\nReason: %s" % (response.content)
@@ -63,7 +63,7 @@ class AuthManager(object):
         '''
         # http POST http://127.0.0.1:8080/users/xbee@outlook.com/tokens password=fq9798
         # if token file exists
-        if cfgdb.is_user_loggedin(name):
+        if self.cfgdb.is_user_loggedin(name):
             a = raw_input("It looks like you have logged in, Do you realy want to login again? (y/n) ").strip()
             if a == 'n' or a == 'N':
                 print("Abort.")
@@ -79,30 +79,30 @@ class AuthManager(object):
         if response.ok:            
             # write it to $HOME/.tsuru_token
             c = response.json()['token']
-            cfgdb.add_user(name, email, c, True)
+            self.cfgdb.add_user(name, email, c, True)
             print("Successfully logged in!")
         else:
             print("Failed to logged in!\nReason: %s" % response.content)
 
     def logout(self):
         '''Clear default user's local authentication credentials.'''
-        x = cfgdb.get_default_user()
+        x = self.cfgdb.get_default_user()
         if x and x['email'] and x['token']:
-            cfgdb.remove_user(name=x['name'], email=x['email'])
+            self.cfgdb.remove_user(name=x['name'], email=x['email'])
             print("Successfully logged out!")
         else:
             print("You're not logged in!")
 
     def status(self):
-        x = cfgdb.get_default_user()
+        x = self.cfgdb.get_default_user()
         if x and x['email'] and x['token']:
             print("You: %s have logged into %s !" % (x['name'], self.target))
         else:
             print("You're not logged in!")
 
     def getCurrentUser(self):
-        x = cfgdb.get_default_user()
-        if x :
+        x = self.cfgdb.get_default_user()
+        if x:
             print("Current user is: %s, email: %s" % (x['name'], x['email']))
         else:
             print("There is no default user.")

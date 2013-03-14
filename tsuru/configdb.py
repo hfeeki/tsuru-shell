@@ -150,4 +150,3 @@ class MyConfigDb(ConfigDb):
         ConfigDb.__init__(self, dbn)
 
 
-cfgdb = MyConfigDb.Instance(DefaultDbName)

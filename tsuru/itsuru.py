@@ -20,8 +20,8 @@ from tsuru.cmds import services
 
 from tsuru.configs import TARGET_FN, TOKEN_FN, CUSER_FN, DefaultTarget, WORK_HOME
 from tsuru.configs import DefaultDbName
-from tsuru.configdb import cfgdb
-from tsuru.utils import minargs_required, getCurrentUser, isLoggedIn
+from tsuru.configdb import MyConfigDb
+from tsuru.utils import minargs_required, isLoggedIn
 from tsuru.libs.icolor import cformat
 from tsuru.libs import cmdln
 
@@ -37,8 +37,9 @@ class ITsuru(cmdln.Cmdln):
 
     def __init__(self, dbn=DefaultDbName):        
         cmdln.Cmdln.__init__(self)
-        dt = cfgdb.get_default_target()
         self.dbn = dbn
+        self.cfgdb = MyConfigDb.Instance(self.dbn)
+        dt = self.cfgdb.get_default_target()
         self.target_name = dt['name']
         self.target = dt['url']
         self.prompt = self._getPrompt()
@@ -56,9 +57,9 @@ class ITsuru(cmdln.Cmdln):
 
     def _getPrompt(self):
         import urlparse        
-        t = self.target = cfgdb.get_default_target()['url']
+        t = self.target = self.cfgdb.get_default_target()['url']
         netloc = urlparse.urlparse(t).netloc
-        u = getCurrentUser()
+        u = self.cfgdb.get_default_user()
         prompt = self.prompt
         if isLoggedIn(self.dbn):
             prompt = cformat("#GREEN;[%s@%s]tsuru> " % (u, netloc))
@@ -86,7 +87,7 @@ class ITsuru(cmdln.Cmdln):
             target_get 
 
         '''
-        ts = cfgdb.get_targets()
+        ts = self.cfgdb.get_targets()
         for t in ts:
             if t['default']:
                 print("%2s %-10s%s" % ('*', t['name'], t['url']))
@@ -106,9 +107,9 @@ class ITsuru(cmdln.Cmdln):
         '''
         name, url = args[0], args[1]
         if opts.default :
-            cfgdb.add_target(name, url, True)
+            self.cfgdb.add_target(name, url, True)
         else:
-            cfgdb.add_target(name, url)
+            self.cfgdb.add_target(name, url)
 
     @cmdln.alias("tr")
     @minargs_required(1)
@@ -124,7 +125,7 @@ class ITsuru(cmdln.Cmdln):
         ${cmd_option_list}
         '''
         name = args[0]
-        cfgdb.remove_target(name)
+        self.cfgdb.remove_target(name)
 
 
     @cmdln.alias("tds")
@@ -136,7 +137,7 @@ class ITsuru(cmdln.Cmdln):
             target_default_set <name> 
         '''
         name = args[0]
-        cfgdb.set_default_target(name)
+        self.cfgdb.set_default_target(name)
         
     @cmdln.alias("dt", "tdg")
     def do_target_default_get(self, subcmd, opts, *args):
@@ -145,7 +146,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             target_default_get 
         '''
-        x = cfgdb.get_default_target()
+        x = self.cfgdb.get_default_target()
         if x:
             print("%2s %-10s%s" % ('*', x['name'], x['url']))
 
@@ -158,7 +159,7 @@ class ITsuru(cmdln.Cmdln):
         Usage:
             user_list 
         '''
-        us = cfgdb.get_users()
+        us = self.cfgdb.get_users()
         for x in us:
             if x['default']:
                 print("%2s %-10s%s" % ('*', x['name'], x['email']))

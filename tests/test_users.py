@@ -4,6 +4,7 @@ import mock
 import unittest
 import py
 import json
+from tsuru.libs import offtheshelf
 from tsuru.configdb import ConfigDb
 from tsuru.cmds.users import AuthManager
 
@@ -17,6 +18,7 @@ IRemoveUnit = "Successfully remove units from an app."
 ICreateUser = "User '%s' successfully created!"
 IRemoveUser = "Remove user successfully!"
 ILogin = "Successfully logged in!"
+ELogin = "Failed to logged in!\nReason: %s"
 QRemoveUser = "Are you sure you want to remove your user from tsuru? (y/n) "
 QHaveLoggedIn = "It looks like you have logged in, Do you realy want to login again? (y/n) "
 
@@ -24,6 +26,8 @@ TestAuthHeader = {'Authorization': 'token'}
 TestPassword = "mypassord"
 TestEmail = "test.email@gmail.com"
 TestUser = "myname"
+TestEmail2 = "test2.email@gmail.com"
+TestUser2 = "myname2"
 
 class TestUsersTestCase(unittest.TestCase):
 
@@ -91,27 +95,110 @@ class TestUsersTestCase(unittest.TestCase):
         delete.not_called()
         self.assertEquals(out.strip(), ELoginFirst)
 
-'''
+    @mock.patch("__builtin__.raw_input", return_value="Y")
     @mock.patch("getpass.getpass", return_value=TestPassword)
     @mock.patch("requests.post")
-    @mock.patch("requests.Response.json", return_value="token")
-    def test_Login(self, json, post, getpass):
+    def test_LoginSucess(self,  post, getpass, raw_input):
+        class Response:
+            '''It is the post()'s return value'''
+            def __init__(self):
+                self.ok = True
+            def json(self):
+                return {"token": "token"}
+
         data = {
             "password": TestPassword
         }
         am = AuthManager("target", self.dbn)
         capture = py.io.StdCaptureFD(in_=False)
+        post.return_value = Response()
         am.login(TestUser, TestEmail)
         out, err = capture.reset()
         post.assert_called_with("target/users/{0}/tokens".format(TestEmail),
                                 data=json.dumps(data))
         self.assertEquals(out.strip(), ILogin)
         # confirm the cfgdb's content
-        # with offtheshelf.openDB(self.dbn) as db:
-        #     users = db.get_collection("users")
-        #     x = users.find({'name': TestUser, 'email': TestEmail, 'default': True})
-        #     assert x != None
-        #     self.assertEquals(1, len(x))
-        #     self.assertEquals("token", x[0]['token'])
-'''
+        with offtheshelf.openDB(self.dbn) as db:
+            users = db.get_collection("users")
+            x = users.find({'name': TestUser, 'email': TestEmail, 'default': True})
+            assert x != None
+            self.assertEquals(1, len(x))
+            self.assertEquals("token", x[0]['token'])
 
+    @mock.patch("__builtin__.raw_input", return_value="Y")
+    @mock.patch("getpass.getpass", return_value=TestPassword)
+    @mock.patch("requests.post")
+    def test_LoginFailed(self,  post, getpass, raw_input):
+        class Response:
+            '''It is the post()'s return value'''
+            def __init__(self):
+                self.ok = False
+                self.content = "Error!!"
+            def json(self):
+                return {"token": "token"}
+
+        data = {
+            "password": TestPassword
+        }
+        am = AuthManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
+        post.return_value = Response()
+        am.login(TestUser, TestEmail)
+        out, err = capture.reset()
+        post.assert_called_with("target/users/{0}/tokens".format(TestEmail),
+                                data=json.dumps(data))
+        self.assertEquals(out.strip(), ELogin % post.return_value.content)
+
+    @mock.patch("__builtin__.raw_input", return_value="Y")
+    @mock.patch("getpass.getpass", return_value=TestPassword)
+    @mock.patch("requests.post")
+    def test_LoginSucessWithLoginAndYesConfirm(self,  post, getpass, raw_input):
+        class Response:
+            '''It is the post()'s return value'''
+            def __init__(self):
+                self.ok = True
+            def json(self):
+                return {"token": "token"}
+        self.loggedin()
+        data = {
+            "password": TestPassword
+        }
+        am = AuthManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
+        post.return_value = Response()
+        am.login(TestUser, TestEmail2)
+        out, err = capture.reset()
+        raw_input.assert_called_with(QHaveLoggedIn)
+        post.assert_called_with("target/users/{0}/tokens".format(TestEmail2),
+                                data=json.dumps(data))
+        self.assertEquals(out.strip(), ILogin)
+        # confirm the cfgdb's content
+        with offtheshelf.openDB(self.dbn) as db:
+            users = db.get_collection("users")
+            x = users.find({'name': TestUser, 'email': TestEmail2, 'default': True})
+            assert x != None
+            self.assertEquals(1, len(x))
+            self.assertEquals("token", x[0]['token'])
+
+    @mock.patch("__builtin__.raw_input", return_value="N")
+    @mock.patch("getpass.getpass", return_value=TestPassword)
+    @mock.patch("requests.post")
+    def test_LoginSucessWithLoginAndNoConfirm(self,  post, getpass, raw_input):
+        class Response:
+            '''It is the post()'s return value'''
+            def __init__(self):
+                self.ok = True
+            def json(self):
+                return {"token": "token"}
+        self.loggedin()
+        data = {
+            "password": TestPassword
+        }
+        am = AuthManager("target", self.dbn)
+        capture = py.io.StdCaptureFD(in_=False)
+        post.return_value = Response()
+        am.login(TestUser, TestEmail2)
+        out, err = capture.reset()
+        raw_input.assert_called_with(QHaveLoggedIn)
+        post.not_called()
+        self.assertEquals(out.strip(), "Abort.")

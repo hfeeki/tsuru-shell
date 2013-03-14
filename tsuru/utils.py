@@ -31,12 +31,12 @@ def readkey(fn=KEY_FN):
         f.read().strip()
         return k
 
-def getCurrentUser():
-    from tsuru.configdb import cfgdb
-    x = cfgdb.get_default_user()
-    if x and x['name']:
-        return x['name']
-    return ""
+# def getCurrentUser():
+#     from tsuru.configdb import cfgdb
+#     x = cfgdb.get_default_user()
+#     if x and x['name']:
+#         return x['name']
+#     return ""
 
 def isLoggedIn(dbn):
     x = readToken(dbn)
