@@ -492,7 +492,6 @@ class RawCmdln(cmd.Cmd):
         Usage:
             ${name} help [COMMAND]
         """
-        #os.system("clear")
         if len(argv) > 1: # asking for help on a particular command
             doc = None
             cmdname = self._get_canonical_cmd_name(argv[1]) or argv[1]

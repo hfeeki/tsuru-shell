@@ -17,7 +17,7 @@ Commands:
     app_unit_remove (aur)         Remove units from an app.
     change_password (cp)          Change your password.
     exit (q, quit, x)             Exit/Quit the interactive shell
-    help (?)                      give detailed help on a specific sub-command
+    help (?, h)                   give detailed help on a specific sub-command
     login (lgi)                   Login to server.
     logout (lgo)                  Clear local authentication credentials.
     service_add (sa)              Create a service instance to one or more ...

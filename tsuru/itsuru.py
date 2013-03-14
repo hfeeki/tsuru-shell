@@ -52,7 +52,7 @@ class ITsuru(cmdln.Cmdln):
    |                                                        |
    ----------------------------------------------------------
     Welcome! Current target is: %s - %s \n\n''' % (self.target_name, self.target)) ## defaults to None
-        os.system("clear")
+        #os.system("clear") # this line will cause all help subcmd clear screen
 
     def _getPrompt(self):
         import urlparse        

@@ -1,8 +1,5 @@
 
 import os, sys
-from nose.tools import ok_, eq_
-import json
-from tsuru.libs import mock
 import unittest
 import pytest
 from tsuru import itsuru
