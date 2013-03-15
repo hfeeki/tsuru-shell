@@ -236,194 +236,27 @@ def test_LogoutSucess(capsys):
     #     self.assertEquals(1, len(x))
     #     self.assertEquals("token", x[0]['token'])
 
-class TestUsersTestCase(unittest.TestCase):
+def test_LoginStatus(capsys):
+    am = AuthManager("target", dbn)
+    am.status()
+    out, err = capsys.readouterr()
+    assert out.strip(), "You're not logged in!"
+    loggedin()
+    am.status()
+    capsys.readouterr()
+    assert out.strip(), "You: %s have logged into %s !" % (TestUser, "target")
 
-    def setUp(self):
-        self.dbn = DBNAME
-        if os.path.exists(self.dbn):
-            os.remove(self.dbn)
-        self.cfgdb = ConfigDb(self.dbn)
-
-    def tearDown(self):
-        if os.path.exists(self.dbn):
-            os.remove(self.dbn)
-
-    # now @with_setup(loggedin) can not working?
-    # nose can not working with unittest.Testcase or it's subclass
-    def loggedin(self):
-        self.cfgdb.add_user(TestUser, TestEmail, "token", True)
-
-    # @mock.patch("getpass.getpass", return_value=TestPassword)
-    # @mock.patch("requests.post")
-    # def test_CreateUser(self, post, getpass):
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     data = {
-    #         "email": TestEmail,
-    #         "password": TestPassword
-    #     }
-    #     am.createUser(TestUser, TestEmail)
-    #     out, err = capture.reset()
-    #     #getpass.assert_called_with("Please input your password: ")
-    #     getpass.assert_called_with("Confirm: ")
-    #     post.assert_called_with("target/users", data=json.dumps(data))
-    #     self.assertEquals(out.strip(), ICreateUser % TestEmail)
-    #
-    # @mock.patch("__builtin__.raw_input", return_value="Y")
-    # @mock.patch("requests.delete")
-    # def test_RemoveUserWithLoginAndYesConfirm(self, delete, raw_input):
-    #     self.loggedin()
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     am.removeUser()
-    #     out, err = capture.reset()
-    #     raw_input.assert_called_with(QRemoveUser)
-    #     delete.assert_called_with("target/users", headers=TestAuthHeader)
-    #     self.assertEquals(out.strip(), IRemoveUser)
-    #
-    # @mock.patch("__builtin__.raw_input", return_value="N")
-    # @mock.patch("requests.delete")
-    # def test_RemoveUserWithLoginAndNoConfirm(self, delete, raw_input):
-    #     self.loggedin()
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     am.removeUser()
-    #     out, err = capture.reset()
-    #     raw_input.assert_called_with(QRemoveUser)
-    #     delete.not_called()
-    #     self.assertEquals(out.strip(), "Abort.")
-    #
-    # @mock.patch("requests.delete")
-    # def test_RemoveUserWithoutLogin(self, delete):
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     am.removeUser()
-    #     out, err = capture.reset()
-    #     delete.not_called()
-    #     self.assertEquals(out.strip(), ELoginFirst)
-
-    # @mock.patch("__builtin__.raw_input", return_value="Y")
-    # @mock.patch("getpass.getpass", return_value=TestPassword)
-    # @mock.patch("requests.post")
-    # def test_LoginSucess(self,  post, getpass, raw_input):
-    #     class Response:
-    #         '''It is the post()'s return value'''
-    #         def __init__(self):
-    #             self.ok = True
-    #         def json(self):
-    #             return {"token": "token"}
-    #
-    #     data = {
-    #         "password": TestPassword
-    #     }
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     post.return_value = Response()
-    #     am.login(TestUser, TestEmail)
-    #     out, err = capture.reset()
-    #     post.assert_called_with("target/users/{0}/tokens".format(TestEmail),
-    #                             data=json.dumps(data))
-    #     self.assertEquals(out.strip(), ILogin)
-    #     # confirm the cfgdb's content
-    #     with offtheshelf.openDB(self.dbn) as db:
-    #         users = db.get_collection("users")
-    #         x = users.find({'name': TestUser, 'email': TestEmail, 'default': True})
-    #         assert x != None
-    #         self.assertEquals(1, len(x))
-    #         self.assertEquals("token", x[0]['token'])
-
-    # @mock.patch("__builtin__.raw_input", return_value="Y")
-    # @mock.patch("getpass.getpass", return_value=TestPassword)
-    # @mock.patch("requests.post")
-    # def test_LoginFailed(self,  post, getpass, raw_input):
-    #     class Response:
-    #         '''It is the post()'s return value'''
-    #         def __init__(self):
-    #             self.ok = False
-    #             self.content = "Error!!"
-    #         def json(self):
-    #             return {"token": "token"}
-    #
-    #     data = {
-    #         "password": TestPassword
-    #     }
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     post.return_value = Response()
-    #     am.login(TestUser, TestEmail)
-    #     out, err = capture.reset()
-    #     post.assert_called_with("target/users/{0}/tokens".format(TestEmail),
-    #                             data=json.dumps(data))
-    #     self.assertEquals(out.strip(), ELogin % post.return_value.content)
-
-    # @mock.patch("__builtin__.raw_input", return_value="Y")
-    # @mock.patch("getpass.getpass", return_value=TestPassword)
-    # @mock.patch("requests.post")
-    # def test_LoginSucessWithLoginAndYesConfirm(self,  post, getpass, raw_input):
-    #     class Response:
-    #         '''It is the post()'s return value'''
-    #         def __init__(self):
-    #             self.ok = True
-    #         def json(self):
-    #             return {"token": "token"}
-    #     self.loggedin()
-    #     data = {
-    #         "password": TestPassword
-    #     }
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     post.return_value = Response()
-    #     am.login(TestUser, TestEmail2)
-    #     out, err = capture.reset()
-    #     raw_input.assert_called_with(QHaveLoggedIn)
-    #     post.assert_called_with("target/users/{0}/tokens".format(TestEmail2),
-    #                             data=json.dumps(data))
-    #     self.assertEquals(out.strip(), ILogin)
-    #     # confirm the cfgdb's content
-    #     with offtheshelf.openDB(self.dbn) as db:
-    #         users = db.get_collection("users")
-    #         x = users.find({'name': TestUser, 'email': TestEmail2, 'default': True})
-    #         assert x != None
-    #         self.assertEquals(1, len(x))
-    #         self.assertEquals("token", x[0]['token'])
-
-    # @mock.patch("__builtin__.raw_input", return_value="N")
-    # @mock.patch("getpass.getpass", return_value=TestPassword)
-    # @mock.patch("requests.post")
-    # def test_LoginSucessWithLoginAndNoConfirm(self,  post, getpass, raw_input):
-    #     class Response:
-    #         '''It is the post()'s return value'''
-    #         def __init__(self):
-    #             self.ok = True
-    #         def json(self):
-    #             return {"token": "token"}
-    #     self.loggedin()
-    #     data = {
-    #         "password": TestPassword
-    #     }
-    #     am = AuthManager("target", self.dbn)
-    #     capture = py.io.StdCaptureFD(in_=False)
-    #     post.return_value = Response()
-    #     am.login(TestUser, TestEmail2)
-    #     out, err = capture.reset()
-    #     #out, err = capsys.reset()
-    #     raw_input.assert_called_with(QHaveLoggedIn)
-    #     post.not_called()
-    #     self.assertEquals(out.strip(), "Abort.")
-
-    # unittest cannot works with pytest's capsys, or other funcargs
-    # def test_LogoutSucess(self, capsys):
-    #     self.loggedin()
-    #     am = AuthManager("target", self.dbn)
-    #     am.logout()
-    #     out, err = capsys.readouterr()
-    #     self.assertEquals(out.strip(), ILogout)
-    #     # confirm the cfgdb's content
-    #     # with offtheshelf.openDB(self.dbn) as db:
-    #     #     users = db.get_collection("users")
-    #     #     x = users.find({'name': TestUser, 'email': TestEmail, 'default': True})
-    #     #     assert x != None
-    #     #     self.assertEquals(1, len(x))
-    #     #     self.assertEquals("token", x[0]['token'])
+def test_GetCurrentUser(capsys):
+    am = AuthManager("target", dbn)
+    x = am.getCurrentUser()
+    out, err = capsys.readouterr()
+    assert out.strip(), "There is no default user."
+    #assert x, None
+    loggedin()
+    x = am.getCurrentUser()
+    out, err = capsys.readouterr()
+    assert out.strip(), "Current user is: %s, email: %s" % (TestUser, TestEmail)
+    assert type(x), type({})
+    assert x['name'], TestUser
 
 

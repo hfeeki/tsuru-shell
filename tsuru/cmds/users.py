@@ -104,8 +104,10 @@ class AuthManager(object):
         x = self.cfgdb.get_default_user()
         if x:
             print("Current user is: %s, email: %s" % (x['name'], x['email']))
+            return x
         else:
             print("There is no default user.")
+            return None
      
     @login_required   
     def createTeam(self, name):
