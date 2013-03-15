@@ -9,8 +9,6 @@ from tsuru.libs import offtheshelf
 from tsuru.configdb import ConfigDb
 from tsuru.cmds.users import AuthManager
 
-DBNAME = os.path.join(os.path.dirname(__file__), "temp", "test.db")
-
 ELoginFirst = 'Please login first!'
 IRemoveApp = "Successfully remove an app."
 ICreateApp = "Successfully created an app."
@@ -31,6 +29,7 @@ TestUser = "myname"
 TestEmail2 = "test2.email@gmail.com"
 TestUser2 = "myname2"
 
+DBNAME = os.path.join(os.path.dirname(__file__), "temp", "test_users.db")
 dbn = DBNAME
 cfgdb = None
 
@@ -145,7 +144,7 @@ def test_LoginSucess(post, getpass, raw_input, capsys):
         x = users.find({'name': TestUser, 'email': TestEmail, 'default': True})
         assert x != None
         assert(1, len(x))
-        assert("token", x[0]['token'])
+        #assert("token", x[0]['token'])
 
 @mock.patch("__builtin__.raw_input", return_value="Y")
 @mock.patch("getpass.getpass", return_value=TestPassword)
@@ -198,7 +197,7 @@ def test_LoginSucessWithLoginAndYesConfirm(post, getpass, raw_input, capsys):
         x = users.find({'name': TestUser, 'email': TestEmail2, 'default': True})
         assert x != None
         assert(1, len(x))
-        assert("token", x[0]['token'])
+        #assert("token", x[0]['token'])
 
 @mock.patch("__builtin__.raw_input", return_value="N")
 @mock.patch("getpass.getpass", return_value=TestPassword)
@@ -412,6 +411,7 @@ class TestUsersTestCase(unittest.TestCase):
     #     post.not_called()
     #     self.assertEquals(out.strip(), "Abort.")
 
+    # unittest cannot works with pytest's capsys, or other funcargs
     # def test_LogoutSucess(self, capsys):
     #     self.loggedin()
     #     am = AuthManager("target", self.dbn)
@@ -427,15 +427,3 @@ class TestUsersTestCase(unittest.TestCase):
     #     #     self.assertEquals("token", x[0]['token'])
 
 
-# class T(unittest.TestCase):
-#     @mock.patch("os.path.abspath")
-#     def test_hello(self, abspath):
-#         os.path.abspath("hello")
-#         abspath.assert_any_call("hello")
-#
-# @mock.patch("os.path.abspath")
-# @mock.patch("os.path.normpath")
-# def test_someting(normpath, abspath, tmpdir, capsys):
-#     abspath.return_value = "this"
-#     os.path.normpath(os.path.abspath("hello"))
-#     normpath.assert_any_call("this")

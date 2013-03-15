@@ -16,6 +16,7 @@ class ConfigDbTestCase(unittest.TestCase):
 
     def setUp(self):
         self.dbn = DBNAME
+        self.tearDown()
         self.cfgdb = ConfigDb(self.dbn)
 
     def tearDown(self):        
