@@ -1,5 +1,5 @@
 nose==1.2.1
-pytest==2.3.5.dev8
+--pytest==2.3.5.dev8
 py==1.4.13
 mock==1.0.1
 requests==1.1.0
