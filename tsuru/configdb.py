@@ -5,6 +5,9 @@ from tsuru.libs import offtheshelf
 from tsuru.utils import Singleton
 from tsuru.configs import DefaultDbName, DefaultTarget, WORK_HOME
 
+def error(msg):
+    from tsuru.libs.icolor import cformat
+    print(cformat("#RED;%s" % msg))
 
 class ConfigDb(object):
 
@@ -31,7 +34,16 @@ class ConfigDb(object):
     def get_targets(self):
         with offtheshelf.openDB(self.dbname) as db:
             tcoll = db.get_collection("targets")
-            return tcoll.find() 
+            return tcoll.find()
+
+    def get_target(self, name):
+        with offtheshelf.openDB(self.dbname) as db:
+            coll = db.get_collection("targets")
+            x = coll.find({"name": name})
+            if len(x) > 0:
+                return x[0]
+            else:
+                return None
 
     def get_default_target(self):
         with offtheshelf.openDB(self.dbname) as db:
@@ -61,6 +73,9 @@ class ConfigDb(object):
     def remove_target(self, name):        
         with offtheshelf.openDB(self.dbname) as db:
             tcoll = db.get_collection("targets")
+            if len(tcoll.find()) <= 1:
+                error("The last target can not be removed.")
+                return
             tcoll.delete({'name': name})
             # if the target is the default one, 
             # we need chose one target as default
@@ -70,6 +85,10 @@ class ConfigDb(object):
                 ts = tcoll.find()
                 if ts and len(ts) > 0:                
                     tcoll.update({'default': True}, {'name': ts[0]['name']})
+                else:
+                    ts = tcoll.find()
+                    if ts and len(ts) > 0:
+                        tcoll.update({'default': True}, {'name': ts[0]['name']})
 
     #######################################################################
 
@@ -148,5 +167,10 @@ class MyConfigDb(ConfigDb):
     '''
     def __init__(self, dbn=DefaultDbName):
         ConfigDb.__init__(self, dbn)
+
+    def reset(self):
+        if os.path.exists(self.dbname):
+            os.remove(self.dbname)
+        self.__init__(self.dbname)
 
 

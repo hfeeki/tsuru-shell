@@ -56,5 +56,18 @@ $ python ishell.py t
  * develop   http://192.168.33.10:8080
    Test      http://localhost:6000
 
+hello this is a doctest
+>>> x = 3
+>>> x
+3
 
+>>> from tsuru import itsuru
+>>> console = itsuru.ITsuru()
+>>> console.main(argv=["tsuru", "help", "target"])
+Get or set target.
+
+Usage:
+    target
+    or
+    target_get
 '''

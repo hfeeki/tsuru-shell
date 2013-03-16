@@ -3,8 +3,8 @@ import os, sys
 import unittest
 import pytest
 from tsuru import itsuru
-
-OUTPUT = os.path.join(os.path.dirname(__file__), "output")
+from tsuru.configdb import ConfigDb
+from constants import *
 
 TSRUR_CMDS = [ 
     ("app_create", "ac"),
@@ -49,14 +49,30 @@ TSRUR_CMDS = [
     ("welcome", "w", "wel")
 ]
 
+SKIPTESTHELP = True
+CONSOLE = itsuru.ITsuru()
+
+dbn = DBNAME
+cfgdb = None
+
+def parseargs(subcmd):
+    if type(subcmd) is str:
+        argv=["tsuru", "%s" % subcmd]
+    elif type(subcmd) in [tuple, list]:
+        argv = ['tsuru']
+        for x in subcmd:
+            argv.append(x)
+    return argv
+
+def xtsuru(subcmd):
+    global CONSOLE
+    console = CONSOLE
+    arg = parseargs(subcmd)
+    console.main(argv=arg)
+
 # content of module.py
 def help():
     sys.argv = ["tsuru", "help"]
-    console = itsuru.ITsuru()
-    console.main(argv=sys.argv)
-
-def cmd_welcome():
-    sys.argv = ["tsuru", "welcome"]
     console = itsuru.ITsuru()
     console.main(argv=sys.argv)
 
@@ -91,15 +107,12 @@ need_tested_funcs = [
     
 ] + generate_test_help_funcs(TSRUR_CMDS) 
 
-#@pytest.mark.parametrize(("filename_expected", "function_to_test"), [
-#    ("help.out", help),
-#    ("help_target.out", help_target),
-#])
+@pytest.mark.skipif("SKIPTESTHELP==True")
 @pytest.mark.parametrize(("filename_expected", "function_to_test"), 
      need_tested_funcs)
-def test_itsuru_funcoutput(capfd, filename_expected, function_to_test):
+def test_itsuru_funcoutput(capsys, filename_expected, function_to_test):
     function_to_test()
-    resout, reserr = capfd.readouterr()
+    resout, reserr = capsys.readouterr()
     fn = os.path.join(OUTPUT, filename_expected)
     if not os.path.exists(fn):
         with open(fn, "w") as f:
@@ -107,11 +120,45 @@ def test_itsuru_funcoutput(capfd, filename_expected, function_to_test):
     expected = open(fn, "r").read()
     assert resout == expected
 
-class iShellTestCase(unittest.TestCase):
-    
-    def setUp(self):
-        pass
+def setup_function(function):
+    """ setup any state tied to the execution of the given function.
+    Invoked for every test function in the module.
+    """
+    global dbn, cfgdb
+    if os.path.exists(dbn):
+        os.remove(dbn)
+    cfgdb = ConfigDb(dbn)
 
-    def tearDown(self):
-        pass
+def teardown_function(function):
+    """ teardown any state that was previously setup with a setup_function
+    call.
+    """
+    global dbn, cfgdb
+    if os.path.exists(dbn):
+        os.remove(dbn)
 
+def loggedin():
+    global dbn, cfgdb
+    cfgdb.add_user(TestUser, TestEmail, "token", True)
+
+# def test_welcome(capsys):
+#     xtsuru("welcome")
+#     out, err = capsys.readouterr()
+#     expect = open(os.path.join(OUTPUT, "welcome.out")).read().strip()
+#     assert out.strip() == expect
+
+def test_GetTargets(capsys):
+    xtsuru("target")
+    out, err = capsys.readouterr()
+    assert out.rstrip() == u"   local     http://127.0.0.1:8080"
+
+def test_AddTarget(capsys):
+    xtsuru("target_add test http://127.0.0.1:5000 -d")
+    xtsuru("target")
+    out, err = capsys.readouterr()
+    expected = """   local     http://127.0.0.1:8080
+ * test      http://127.0.0.1:5000"""
+    assert out.strip() == expected
+
+def test_RemoveTarget(capsys):
+    pass

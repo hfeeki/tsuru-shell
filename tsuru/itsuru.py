@@ -24,13 +24,11 @@ from tsuru.configdb import MyConfigDb
 from tsuru.utils import minargs_required, isLoggedIn
 from tsuru.libs.icolor import cformat
 from tsuru.libs import cmdln
+from tsuru.libs.icolor import cformat
 
-'''
-$ python ishell.py t
-   local     http://127.0.0.1:8080
- * develop   http://192.168.33.10:8080
-   Test      http://localhost:6000
-'''
+def error(msg):
+    print(cformat("#RED;%s" % msg))
+
 class ITsuru(cmdln.Cmdln):
     name = "tsuru"
     #prompt = "tsuru> "
@@ -74,7 +72,7 @@ class ITsuru(cmdln.Cmdln):
     def do_welcome(self, subcmd, opts, *args):
         '''Show the welcome banner.
         '''
-        os.system("clear")
+        #os.system("clear")
         print(self.intro)
 
     @cmdln.alias("t", "target")
@@ -84,8 +82,7 @@ class ITsuru(cmdln.Cmdln):
         Usage: 
             target 
             or
-            target_get 
-
+            target_get
         '''
         ts = self.cfgdb.get_targets()
         for t in ts:
@@ -128,16 +125,19 @@ class ITsuru(cmdln.Cmdln):
         self.cfgdb.remove_target(name)
 
 
-    @cmdln.alias("tds")
+    @cmdln.alias("ts")
     @minargs_required(1)
-    def do_target_default_set(self, subcmd, opts, *args):
+    def do_target_set(self, subcmd, opts, *args):
         '''Set a named target as the only default.
 
         Usage:
-            target_default_set <name> 
+            target_set <name>
         '''
         name = args[0]
-        self.cfgdb.set_default_target(name)
+        if self.cfgdb.get_target(name):
+            self.cfgdb.set_default_target(name)
+        else:
+            error('Target "%s" does not exists.' % name)
         
     @cmdln.alias("dt", "tdg")
     def do_target_default_get(self, subcmd, opts, *args):
@@ -562,6 +562,13 @@ class ITsuru(cmdln.Cmdln):
         """Pass command to a system shell when line begins with '!'"""
         import string
         os.system(string.join(args))
+
+    def _do_reset(self, subcmd, opts, *args):
+        """Reset to default configurations.
+        This is a hidden command.
+        """
+        self.cfgdb.reset()
+        print("Reset to default configurations!")
 
 
 def main():
